@@ -5,6 +5,20 @@ networks:
     driver: bridge
 
 services:
+  appreact:
+    container_name: frontend-container
+    build: C:/Users/marko/Documents/Projects/xadrez/appreact
+    command: npm start
+    ports:
+      - "3000:3000"
+    volumes:
+      - C:/Users/marko/Documents/Projects/xadrez/appreact:/usr/app
+    networks:
+      - db_backend
+    depends_on:
+      - api
+    links:
+      - api
   api:
     container_name: backend-container
     build: C:/Users/marko/Documents/Projects/xadrez/api
