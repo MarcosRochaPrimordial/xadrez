@@ -12,7 +12,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - C:/Users/marko/Documents/Projects/xadrez/appreact:/usr/app
+      - C:/Users/marko/Documents/Projects/xadrez/appreact:/usr/src/app
     networks:
       - db_backend
     depends_on:

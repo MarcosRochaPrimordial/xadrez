@@ -1,6 +1,7 @@
 FROM node:alpine
+ENV CHOKIDAR_USEPOLLING true
 
-WORKDIR /usr/app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm install
