@@ -1,0 +1,32 @@
+version: "3"
+
+networks:
+  db_backend:
+    driver: bridge
+
+services:
+  api:
+    container_name: backend-container
+    build: C:/Users/marko/Documents/Projects/xadrez/api
+    command: npm start
+    ports:
+      - "3300:3300"
+    volumes:
+      - C:/Users/marko/Documents/Projects/xadrez/api:/usr/app
+    networks:
+      - db_backend
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    container_name: db-container
+    build: C:/Users/marko/Documents/Projects/xadrez/db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - C:/Users/marko/Documents/Projects/xadrez/db/data:/var/lib/mysql
+    networks:
+      - db_backend
