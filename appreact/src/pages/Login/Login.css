@@ -1,0 +1,36 @@
+.login {
+  background-color: #282c34;
+  min-height: 100vh;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10px + 2vmin);
+}
+
+.logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.login-item {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .logo {
+      animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+@keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+}
