@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './../../logo.svg';
 import './login.css';
 import { Form, Container, Row, Col, Button } from 'react-bootstrap';
+import auth from '../../services/auth.service';
 
 interface ILogin {
     isLogin: boolean,
@@ -26,6 +27,19 @@ export default class Login extends Component<any, ILogin> {
         }))
     }
 
+    sign() {
+        const body = {
+            username: this.state.username,
+            password: this.state.password
+        };
+
+        if (this.state.isLogin) {
+            auth.login(body, () => {
+                this.props.history.push('/');
+            });
+        }
+    }
+
     render() {
         return (
             <Container fluid className="login">
@@ -35,17 +49,17 @@ export default class Login extends Component<any, ILogin> {
                         <Col xs="12" sm="9" md="7" lg="5" xl="4">
                             <Row className="mb-20">
                                 <Col lg="12">
-                                    <Form.Control type="text" placeholder="Usuário" size="lg" />
+                                    <Form.Control type="text" placeholder="Usuário" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
                                 </Col>
                             </Row>
                             <Row className="mb-20">
                                 <Col lg="12">
-                                    <Form.Control type="password" placeholder="Senha" size="lg" />
+                                    <Form.Control type="password" placeholder="Senha" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
                                 </Col>
                             </Row>
                             <Row className="mb-10">
                                 <Col lg="12">
-                                    <Button variant="primary" size="lg" block>{this.state.isLogin ? 'Entrar' : 'Concluir'}</Button>
+                                    <Button variant="primary" onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Entrar' : 'Concluir'}</Button>
                                 </Col>
                             </Row>
                             <Row>
