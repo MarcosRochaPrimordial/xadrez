@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from './../../logo.svg';
 import './login.css';
 import { Form, Container, Row, Col, Button } from 'react-bootstrap';
-import auth from '../../services/auth.service';
+import auth from '../../shared/services/auth.service';
 
 interface ILogin {
     isLogin: boolean,
@@ -34,9 +34,15 @@ export default class Login extends Component<any, ILogin> {
         };
 
         if (this.state.isLogin) {
-            auth.login(body, () => {
-                this.props.history.push('/');
+            auth.login(body, (success: boolean) => {
+                if (success) {
+                    this.props.history.push('/');
+                } else {
+                    // aqui vai abrir o modal de mensagem
+                }
             });
+        } else {
+
         }
     }
 

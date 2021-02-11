@@ -1,4 +1,4 @@
-import { User } from "../models/User";
+import { User } from '../../core/models/User';
 
 export class UserService {
     set user(user: User) {
