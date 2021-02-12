@@ -23,10 +23,10 @@ export class UserService {
                     userDto.token = Security.sign(userDto.username, 86400);
                     return resultNotification.setResult(userDto);
                 } else {
-                    return resultNotification.addError('Invalid login');
+                    return resultNotification.addError('Invalid login').Success(false);
                 }
             })
-            .catch(err => resultNotification.addError(err));
+            .catch(err => resultNotification.addError(err).Success(false));
     }
 
     public signUp(userDto: UserDto): Promise<Notification<number>> {
@@ -41,11 +41,11 @@ export class UserService {
                         .then((insertedId: number) => {
                             return resultNotification.setResult(insertedId);
                         })
-                        .catch(err => resultNotification.addError(err))
+                        .catch(err => resultNotification.addError(err).Success(false))
                 } else {
-                    return resultNotification.addError('Username already registered');
+                    return resultNotification.addError('Username already registered').Success(false);
                 }
             })
-            .catch(err => resultNotification.addError(err));
+            .catch(err => resultNotification.addError(err).Success(false));
     }
 }

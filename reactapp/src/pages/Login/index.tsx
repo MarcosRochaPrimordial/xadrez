@@ -3,6 +3,7 @@ import logo from './../../logo.svg';
 import './login.css';
 import { Form, Container, Row, Col, Button } from 'react-bootstrap';
 import auth from '../../shared/services/auth.service';
+import UserService from './../../shared/services/user.service';
 
 interface ILogin {
     isLogin: boolean,
@@ -11,19 +12,21 @@ interface ILogin {
 };
 
 export default class Login extends Component<any, ILogin> {
+    state = {
+        isLogin: true,
+        username: '',
+        password: '',
+    };
 
     constructor(props: any) {
         super(props);
-        this.state = {
-            isLogin: true,
-            username: '',
-            password: '',
-        }
     }
 
     cadastrar() {
         this.setState(state => ({
             isLogin: !state.isLogin,
+            username: '',
+            password: '',
         }))
     }
 
@@ -34,15 +37,29 @@ export default class Login extends Component<any, ILogin> {
         };
 
         if (this.state.isLogin) {
-            auth.login(body, (success: boolean) => {
-                if (success) {
-                    this.props.history.push('/');
-                } else {
-                    // aqui vai abrir o modal de mensagem
-                }
-            });
+            auth.login(body)
+                .then((data) => {
+                    if (data.success) {
+                        this.props.history.push('/');
+                    } else {
+                        console.log(data.errors.join('\n'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Houve um erro. Tente novamente mais tarde.', err);
+                });
         } else {
-
+            UserService.signUp(body)
+                .then((data) => {
+                    if (data.success) {
+                        console.log('Usuário cadastrado com sucesso.');
+                    } else {
+                        console.log(data.errors.join('\n'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Houve um erro. Tente novamente mais tarde.', err);
+                });
         }
     }
 

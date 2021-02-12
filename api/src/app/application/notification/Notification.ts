@@ -23,7 +23,7 @@ export class Notification<T> {
 
     public addError(error: string | any): Notification<T> {
         this.errors.push(error);
-        return this.Success(false);
+        return this;
     }
 
     public clearErrors() {
