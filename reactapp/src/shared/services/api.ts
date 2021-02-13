@@ -1,20 +1,20 @@
+import axios from 'axios';
 import { ResultNotification } from '../../core/models/ResultNotification';
 
 class Api {
-    private BASE: string = 'http://localhost:3300';
-    private headers = {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-    };
+    private api = axios.create({
+        baseURL: 'http://localhost:3300'
+    });
 
     public Post<T>(endpoint: string, body: any): Promise<ResultNotification<T>> {
         return new Promise((resolve, reject) => {
-            fetch(`${this.BASE}${endpoint}`, {
-                headers: this.headers,
-                method: 'POST',
-                body: JSON.stringify(body)
+            this.api.post<any, any>(endpoint, body, {
+                headers: {
+                    'Accept': 'text/plain; application/json',
+                    'Content-Type': 'text/plain; application/json',
+                }
             })
-                .then((response) => resolve(response.json()))
+                .then(response => resolve(response.data as ResultNotification<T>))
                 .catch(err => reject(err));
         });
     }
