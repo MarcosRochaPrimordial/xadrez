@@ -7,7 +7,7 @@ import Login from './pages/Login';
 const Routes: React.FC = () => {
     return (
         <Switch>
-            <ProtectedRoute path="/" exact component={Home} />
+            <ProtectedRoute exact path="/" component={Home} />
             <Route path="/login" component={Login} />
         </Switch>
     );

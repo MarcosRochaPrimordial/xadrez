@@ -5,15 +5,15 @@ import Api from './api';
 class UserService {
     private LOGGED_USER = 'logged_user';
     public setUser(user: User) {
-        localStorage.setItem(this.LOGGED_USER, JSON.stringify(user));
+        sessionStorage.setItem(this.LOGGED_USER, JSON.stringify(user));
     }
 
     public getUser(): User {
-        return JSON.parse(localStorage.getItem(this.LOGGED_USER) || '{}');
+        return JSON.parse(sessionStorage.getItem(this.LOGGED_USER) || '{}');
     }
 
     public clearUser() {
-        localStorage.removeItem(this.LOGGED_USER);
+        sessionStorage.removeItem(this.LOGGED_USER);
     }
 
     public signUp(params: User): Promise<ResultNotification<User>> {

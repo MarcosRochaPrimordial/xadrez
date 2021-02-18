@@ -1,5 +1,5 @@
 import { LoginController } from './app/application/controller/LoginController';
-import { App, METHOD, HEADER } from 'decorated-router';
+import { App } from 'decorated-router';
 
 @App({
     controllers: [
@@ -7,8 +7,8 @@ import { App, METHOD, HEADER } from 'decorated-router';
     ],
     server: {
         port: 3300,
-        methods: [METHOD.GET, METHOD.POST],
-        headers: [HEADER.ORIGIN, HEADER.XREQUESTEDWITH, HEADER.CONTENTTYPE, HEADER.ACCEPT, HEADER.AUTHORIZATION]
+        methods: ['GET', 'POST'],
+        headers: ['ORIGIN', 'X-Requested-With', 'Content-type', 'Accept', 'Authorization']
     }
 })
 class Loader { }
