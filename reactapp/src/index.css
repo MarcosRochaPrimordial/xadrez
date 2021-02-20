@@ -27,3 +27,14 @@ code {
   width: 330px;
   text-align: left;
 }
+
+.spin-wrap {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background-color: rgba(204, 204, 204, 0.356);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
