@@ -20,6 +20,7 @@ class Auth {
     }
 
     logout() {
+        UserService.clearUser();
         this.authenticated = false;
     }
 

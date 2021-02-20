@@ -1,17 +1,33 @@
 import React, { Component } from 'react';
+import { Form, Container, Row, Col, Button } from 'react-bootstrap';
+import { bindActionCreators, Dispatch } from 'redux';
+
 import logo from './../../logo.svg';
 import './login.css';
-import { Form, Container, Row, Col, Button } from 'react-bootstrap';
 import auth from '../../shared/services/auth.service';
 import UserService from './../../shared/services/user.service';
+import * as MessagesActions from './../../core/store/ducks/Messages/actions';
+import { connect } from 'react-redux';
 
-interface ILogin {
+interface IState {
     isLogin: boolean,
     username: string,
     password: string,
 };
 
-export default class Login extends Component<any, ILogin> {
+interface DispatchProps {
+    alertSuccess(message: string): void;
+    alertFailure(message: string): void;
+    alertWarning(message: string): void;
+};
+
+interface OwnProps {
+    history: any[];
+};
+
+type Props = DispatchProps & OwnProps;
+
+class Login extends Component<Props, IState> {
     state = {
         isLogin: true,
         username: '',
@@ -22,7 +38,11 @@ export default class Login extends Component<any, ILogin> {
         super(props);
     }
 
-    cadastrar() {
+    verifyForm() {
+        return !this.state.username || !this.state.password;
+    }
+
+    signUp() {
         this.setState(state => ({
             isLogin: !state.isLogin,
             username: '',
@@ -42,23 +62,23 @@ export default class Login extends Component<any, ILogin> {
                     if (data.success) {
                         this.props.history.push('/');
                     } else {
-                        console.log(data.errors.join('\n'));
+                        this.props.alertFailure(data.errors.join('\n'));
                     }
                 })
                 .catch(err => {
-                    console.error('Houve um erro. Tente novamente mais tarde.', err);
+                    this.props.alertFailure('An error has occurred. Try again later.');
                 });
         } else {
             UserService.signUp(body)
                 .then((data) => {
                     if (data.success) {
-                        console.log('Usuário cadastrado com sucesso.');
+                        this.props.alertSuccess('User registered succesfully.');
                     } else {
-                        console.log(data.errors.join('\n'));
+                        this.props.alertFailure(data.errors.join('\n'));
                     }
                 })
                 .catch(err => {
-                    console.error('Houve um erro. Tente novamente mais tarde.', err);
+                    this.props.alertFailure('An error has occurred. Try again later.');
                 });
         }
     }
@@ -72,22 +92,22 @@ export default class Login extends Component<any, ILogin> {
                         <Col xs="12" sm="9" md="7" lg="5" xl="4">
                             <Row className="mb-20">
                                 <Col lg="12">
-                                    <Form.Control type="text" placeholder="Usuário" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
+                                    <Form.Control type="text" placeholder="User" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
                                 </Col>
                             </Row>
                             <Row className="mb-20">
                                 <Col lg="12">
-                                    <Form.Control type="password" placeholder="Senha" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
+                                    <Form.Control type="password" placeholder="Password" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
                                 </Col>
                             </Row>
                             <Row className="mb-10">
                                 <Col lg="12">
-                                    <Button variant="primary" onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Entrar' : 'Concluir'}</Button>
+                                    <Button variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col lg="12">
-                                    <Button variant="secondary" onClick={this.cadastrar.bind(this)} size="lg" block>{this.state.isLogin ? 'Cadastrar-se' : 'Voltar'}</Button>
+                                    <Button variant="secondary" onClick={this.signUp.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign up' : 'Back'}</Button>
                                 </Col>
                             </Row>
                         </Col>
@@ -97,3 +117,8 @@ export default class Login extends Component<any, ILogin> {
         );
     }
 }
+
+const mapDispatchToProps = (dispatch: Dispatch) =>
+    bindActionCreators(MessagesActions, dispatch);
+
+export default connect(null, mapDispatchToProps)(Login);

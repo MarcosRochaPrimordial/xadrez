@@ -19,3 +19,11 @@ code {
 .mb-10 {
   margin-bottom: 10px;
 }
+
+.sys-alert {
+  position: absolute;
+  top: 30px;
+  right: 60px;
+  width: 330px;
+  text-align: left;
+}

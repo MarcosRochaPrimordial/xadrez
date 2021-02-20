@@ -1,9 +1,24 @@
 import React, { Component } from 'react';
 
-export default class Home extends Component {
+import auth from '../../shared/services/auth.service';
+
+export default class Home extends Component<any> {
+
+    constructor(props: any) {
+        super(props);
+    }
+
+    signout() {
+        auth.logout();
+        this.props.history.push('/login');
+    }
+
     render() {
         return (
-            <h1>Home</h1>
+            <div>
+                <h1>Home</h1>
+                <button onClick={this.signout.bind(this)}>Log out</button>
+            </div>
         );
     }
 }

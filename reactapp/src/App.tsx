@@ -1,7 +1,8 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './core/store';
 
-import Routes from './routes';
+import Pages from './pages';
 
-const App = () => <BrowserRouter><Routes /></BrowserRouter>;
+const App = () => <Provider store={store}><Pages /></Provider>;
 export default App;
