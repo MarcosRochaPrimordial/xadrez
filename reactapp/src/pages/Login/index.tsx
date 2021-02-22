@@ -18,7 +18,6 @@ interface IState {
 interface DispatchProps {
     alertSuccess(message: string): void;
     alertFailure(message: string): void;
-    alertWarning(message: string): void;
 };
 
 interface OwnProps {
@@ -87,32 +86,34 @@ class Login extends Component<Props, IState> {
         return (
             <Container fluid className="login">
                 <img src={logo} className="logo" alt="logo" />
-                <Form.Group className="form-fluid">
-                    <Row className="justify-content-center">
-                        <Col xs="12" sm="9" md="7" lg="5" xl="4">
-                            <Row className="mb-20">
-                                <Col lg="12">
-                                    <Form.Control type="text" placeholder="User" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
-                                </Col>
-                            </Row>
-                            <Row className="mb-20">
-                                <Col lg="12">
-                                    <Form.Control type="password" placeholder="Password" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
-                                </Col>
-                            </Row>
-                            <Row className="mb-10">
-                                <Col lg="12">
-                                    <Button variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col lg="12">
-                                    <Button variant="secondary" onClick={this.signUp.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign up' : 'Back'}</Button>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
-                </Form.Group>
+                <Form className="form-fluid">
+                    <Form.Group>
+                        <Row className="justify-content-center">
+                            <Col xs="12" sm="9" md="7" lg="5" xl="4">
+                                <Row className="mb-20">
+                                    <Col lg="12">
+                                        <Form.Control type="text" placeholder="User" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-20">
+                                    <Col lg="12">
+                                        <Form.Control type="password" placeholder="Password" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-10">
+                                    <Col lg="12">
+                                        <Button type="submit" variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col lg="12">
+                                        <Button variant="secondary" onClick={this.signUp.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign up' : 'Back'}</Button>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                </Form>
             </Container>
         );
     }

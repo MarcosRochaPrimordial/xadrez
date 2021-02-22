@@ -1,4 +1,6 @@
 import axios from 'axios';
+import store from './../../core/store';
+import { LoadingTypes } from './../../core/store/ducks/Loading/types'
 import { ResultNotification } from '../../core/models/ResultNotification';
 
 class Api {
@@ -18,10 +20,12 @@ class Api {
     }
 
     public Post<T>(endpoint: string, body: any): Promise<ResultNotification<T>> {
+        store.dispatch({ type: LoadingTypes.SHOW });
         return new Promise((resolve, reject) => {
             this.api.post<any, any>(endpoint, body)
                 .then(response => resolve(response.data as ResultNotification<T>))
-                .catch(err => reject(err));
+                .catch(err => reject(err))
+                .finally(() => store.dispatch({ type: LoadingTypes.HIDE }));
         });
     }
 }
