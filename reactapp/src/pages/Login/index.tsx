@@ -102,7 +102,7 @@ class Login extends Component<Props, IState> {
                                 </Row>
                                 <Row className="mb-10">
                                     <Col lg="12">
-                                        <Button type="submit" variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
+                                        <Button variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
                                     </Col>
                                 </Row>
                                 <Row>
