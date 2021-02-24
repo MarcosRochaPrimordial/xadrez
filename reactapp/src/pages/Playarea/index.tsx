@@ -1,7 +1,7 @@
 import { Component } from "react";
 
-import { Col, FieldModel, Row } from "../../../core/models/FieldModel";
-import FieldList from '../FieldList';
+import { Col, FieldModel, Row } from "../../core/models/FieldModel";
+import FieldList from '../../shared/components/FieldList';
 
 function fieldColor(rowIndex: number, colorIndex: number) {
     if (rowIndex % 2 !== 0) {

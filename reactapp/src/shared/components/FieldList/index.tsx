@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Col } from "../../../core/models/FieldModel";
-import Field from './../Field';
+import Field from './Field';
 
 interface OwnProps {
     fields: Col[];
