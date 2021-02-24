@@ -7,7 +7,7 @@ export const ProtectedRoute = ({ component: Component, ...rest }: any) => {
         <Route
             {...rest}
             render={props => {
-                if (auth.isAuthenticated()) {
+                if (auth.authenticated) {
                     return <Component {...props} />;
                 }
                 return <Redirect to={

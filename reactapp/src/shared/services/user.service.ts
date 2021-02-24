@@ -4,6 +4,10 @@ import Api from './api';
 
 class UserService {
     private LOGGED_USER = 'logged_user';
+    get userExists(): boolean {
+        return !!this.getUser().username;
+    }
+
     public setUser(user: User) {
         sessionStorage.setItem(this.LOGGED_USER, JSON.stringify(user));
     }

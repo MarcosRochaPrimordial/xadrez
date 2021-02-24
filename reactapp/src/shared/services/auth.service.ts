@@ -3,7 +3,9 @@ import { User } from '../../core/models/User';
 import UserService from './user.service';
 
 class Auth {
-    authenticated: boolean = false;
+    get authenticated(): boolean {
+        return UserService.userExists;
+    }
 
     login(body: User): Promise<ResultNotification<User>> {
         return new Promise((resolve, reject) => {
@@ -11,7 +13,6 @@ class Auth {
                 .then(response => {
                     if (response.success) {
                         UserService.setUser(response.result);
-                        this.authenticated = true;
                     }
                     resolve(response);
                 })
@@ -21,11 +22,6 @@ class Auth {
 
     logout() {
         UserService.clearUser();
-        this.authenticated = false;
-    }
-
-    isAuthenticated() {
-        return this.authenticated;
     }
 }
 

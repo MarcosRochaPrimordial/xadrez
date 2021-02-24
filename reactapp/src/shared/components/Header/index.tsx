@@ -17,7 +17,7 @@ export default class Header extends Component<any> {
     render() {
         return (
             <Navbar bg="light" expand="lg">
-                <Navbar.Brand href="#home">Xadrez</Navbar.Brand>
+                <Navbar.Brand href="#home">Chess</Navbar.Brand>
                 <div className="btn-logout">
                     <Button variant="outline-success" onClick={this.signout.bind(this)}>Logout</Button>
                 </div>

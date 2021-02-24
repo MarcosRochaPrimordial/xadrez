@@ -20,6 +20,14 @@ code {
   margin-bottom: 10px;
 }
 
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
 .sys-alert {
   position: absolute;
   top: 30px;
@@ -37,4 +45,8 @@ code {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.pointer {
+  cursor: pointer;
 }

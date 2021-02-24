@@ -8,12 +8,13 @@ DROP TABLE IF EXISTS user;
 
 CREATE TABLE user (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username varchar(255) UNIQUE,
-    password varchar(255)
+    username VARCHAR(255) UNIQUE,
+    password VARCHAR(255)
 );
 
 CREATE TABLE game (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    game_code VARCHAR(255) UNIQUE,
     player_one_id INT,
     player_two_id INT,
     d_start DATETIME,
