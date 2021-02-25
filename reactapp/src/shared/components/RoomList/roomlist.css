@@ -1,3 +1,8 @@
 .pagination-position {
     float: right;
 }
+
+.button-center {
+    display: flex;
+    align-items: center;
+}

@@ -3,8 +3,8 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import PromptModal from "../PromptModal";
-import * as PromptModalActions from './../../../core/store/ducks/PromptModal/actions';
+import AlertModal from "../AlertModal";
+import * as AlertModalActions from '../../../core/store/ducks/AlertModal/actions';
 
 interface DispatchProps {
     modalShow(message: string,
@@ -12,6 +12,7 @@ interface DispatchProps {
         buttonSecondaryLabel: string,
         buttonPrimaryAction: any,
         buttonSecondaryAction: any): void;
+    modalHide(): void;
 };
 
 class SearchRoomForm extends Component<DispatchProps> {
@@ -22,7 +23,7 @@ class SearchRoomForm extends Component<DispatchProps> {
             'Yes',
             'No',
             () => console.log('Teste'),
-            () => console.log('Teste 2')
+            this.props.modalHide
         );
     }
 
@@ -42,13 +43,13 @@ class SearchRoomForm extends Component<DispatchProps> {
                         </Col>
                     </Row>
                 </Container>
-                <PromptModal />
+                <AlertModal />
             </>
         );
     }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
-    bindActionCreators(PromptModalActions, dispatch);
+    bindActionCreators(AlertModalActions, dispatch);
 
 export default connect(null, mapDispatchToProps)(SearchRoomForm);

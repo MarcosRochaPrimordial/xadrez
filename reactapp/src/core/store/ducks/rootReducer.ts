@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 import messages from './Messages';
 import loading from './Loading';
-import modal from './PromptModal';
+import modal from './AlertModal';
 
 export default combineReducers({
     messages,

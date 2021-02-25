@@ -1,8 +1,8 @@
 import { Reducer } from "redux";
-import { PromptModalState, PromptModalTypes } from "./types";
+import { AlertModalState, AlertModalTypes } from "./types";
 
-const INITIAL_STATE: PromptModalState = {
-    promptModal: {
+const INITIAL_STATE: AlertModalState = {
+    alertModal: {
         show: false,
         message: '',
         buttonPrimaryLabel: '',
@@ -12,24 +12,34 @@ const INITIAL_STATE: PromptModalState = {
     }
 }
 
-const reducer: Reducer<PromptModalState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<AlertModalState> = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case PromptModalTypes.SHOW:
+        case AlertModalTypes.SHOW:
             return {
                 ...state,
-                promptModal: {
+                alertModal: {
                     ...action.payload,
                     show: true,
+                    prompt: false,
                 }
             };
-        case PromptModalTypes.HIDE:
+        case AlertModalTypes.HIDE:
             return {
                 ...state,
-                promptModal: {
+                alertModal: {
                     ...action.payload,
                     show: false,
                 }
             };
+        case AlertModalTypes.PROMPT:
+            return {
+                ...state,
+                alertModal: {
+                    ...action.payload,
+                    show: true,
+                    prompt: true,
+                }
+            }
         default:
             return state;
     }
