@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS xadrez_base;
 USE xadrez_base;
 
 DROP TABLE IF EXISTS game_move;
-DROP TABLE IF EXISTS game;
+DROP TABLE IF EXISTS room;
 DROP TABLE IF EXISTS user;
 
 CREATE TABLE user (
@@ -12,7 +12,7 @@ CREATE TABLE user (
     password VARCHAR(255)
 );
 
-CREATE TABLE game (
+CREATE TABLE room (
     id INT PRIMARY KEY AUTO_INCREMENT,
     game_code VARCHAR(255) UNIQUE,
     player_one_id INT,
@@ -25,8 +25,8 @@ CREATE TABLE game (
 CREATE TABLE game_move (
     id INT PRIMARY KEY AUTO_INCREMENT,
     d_time DATETIME,
-    game_id INT,
+    room_id INT,
     user_id INT,
-    FOREIGN KEY (game_id) REFERENCES game(id),
+    FOREIGN KEY (room_id) REFERENCES room(id),
     FOREIGN KEY (user_id) REFERENCES user(id)
 );

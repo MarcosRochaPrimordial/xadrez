@@ -67,7 +67,7 @@ class AlertModal extends Component<Props, IState> {
                             {buttonSecondaryLabel}
                         </Button>
                     )}
-                    <Button variant="primary" disabled={!this.state.prompt} onClick={!!buttonPrimaryAction ? buttonPrimaryAction.bind(this, this.state.prompt) : undefined}>
+                    <Button variant="primary" disabled={prompt && !this.state.prompt} onClick={!!buttonPrimaryAction ? buttonPrimaryAction.bind(this, this.state.prompt) : undefined}>
                         {buttonPrimaryLabel}
                     </Button>
                 </Modal.Footer>

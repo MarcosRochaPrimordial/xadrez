@@ -11,9 +11,9 @@ export class BaseRepository {
 
     public Insert<T>(entity: T): Promise<number> {
         return new Promise((resolve, reject) => {
-            this.Query(`INSERT INTO ${this.TABLE_NAME} VALUES(${Object.keys(entity).fill('?')})`, Object.values(entity))
+            this.Query(`INSERT INTO ${this.TABLE_NAME}(${Object.keys(entity)}) VALUES(${Object.keys(entity).fill('?')})`, Object.values(entity))
                 .then((result: any) => {
-                    resolve(result.insertedId);
+                    resolve(result.insertId);
                 })
                 .catch(err => reject(err));
         });

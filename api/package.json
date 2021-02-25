@@ -11,7 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/crypto-js": "^4.0.1",
     "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.0.0",
     "decorated-router": "^1.4.2",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1"

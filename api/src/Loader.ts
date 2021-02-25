@@ -1,9 +1,11 @@
 import { LoginController } from './app/application/controller/LoginController';
 import { App } from 'decorated-router';
+import { RoomController } from './app/application/controller/RoomController';
 
 @App({
     controllers: [
-        LoginController
+        LoginController,
+        RoomController
     ],
     server: {
         port: 3300,

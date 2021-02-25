@@ -1,4 +1,4 @@
-export class Notification<T> {
+export class Notification<T = null> {
     private result: T = null;
     private success: boolean;
     private errors: string[] = [];

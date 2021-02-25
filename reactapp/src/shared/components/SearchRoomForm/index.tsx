@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import AlertModal from "../AlertModal";
-import * as AlertModalActions from '../../../core/store/ducks/AlertModal/actions';
+import * as AlertModalActions from './../../../core/store/ducks/AlertModal/actions';
+import * as MessagesActions from './../../../core/store/ducks/Messages/actions';
+import RoomService from './../../services/room.service';
 
 interface DispatchProps {
     modalShow(message: string,
@@ -13,18 +15,36 @@ interface DispatchProps {
         buttonPrimaryAction: any,
         buttonSecondaryAction: any): void;
     modalHide(): void;
+    alertSuccess(message: string): void;
+    alertFailure(message: string): void;
+    alertWarning(message: string): void;
 };
 
 class SearchRoomForm extends Component<DispatchProps> {
 
-    createRoom() {
+    openModalCreateRoom() {
         this.props.modalShow(
             'Are you sure?',
             'Yes',
             'No',
-            () => console.log('Teste'),
+            () => {
+                this.createRoom.call(this);
+                this.props.modalHide();
+            },
             this.props.modalHide
         );
+    }
+
+    createRoom() {
+        RoomService.createRoom()
+            .then(result => {
+                if (result.success) {
+                    this.props.alertSuccess('A game room was created successfully');
+                } else {
+                    this.props.alertFailure('An error has occurred. Try again later.');
+                }
+            })
+            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
     }
 
     render() {
@@ -39,7 +59,7 @@ class SearchRoomForm extends Component<DispatchProps> {
                             <Button variant="primary" block>Search</Button>
                         </Col>
                         <Col className="mb-10" lg="2" xs="12">
-                            <Button variant="secondary" block onClick={this.createRoom.bind(this)}>Create room</Button>
+                            <Button variant="secondary" block onClick={this.openModalCreateRoom.bind(this)}>Create room</Button>
                         </Col>
                     </Row>
                 </Container>
@@ -50,6 +70,6 @@ class SearchRoomForm extends Component<DispatchProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
-    bindActionCreators(AlertModalActions, dispatch);
+    bindActionCreators({ ...AlertModalActions, ...MessagesActions }, dispatch);
 
 export default connect(null, mapDispatchToProps)(SearchRoomForm);

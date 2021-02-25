@@ -8,6 +8,8 @@ import PaginationLayout from './../PaginationLayout';
 import './roomlist.css';
 import AlertModal from "../AlertModal";
 import * as AlertModalActions from '../../../core/store/ducks/AlertModal/actions';
+import * as MessageActions from './../../../core/store/ducks/Messages/actions';
+import RoomService from "../../services/room.service";
 
 interface IState {
     rooms: Room[],
@@ -20,33 +22,42 @@ interface DispatchProps {
         buttonPrimaryAction: any,
         buttonSecondaryAction: any): void;
     modalHide(): void;
+    alertSuccess(message: string): void;
+    alertFailure(message: string): void;
+    alertWarning(message: string): void;
 };
 
 class RoomList extends Component<DispatchProps, IState> {
 
     state = {
         rooms: [{
-            id: 1,
-            playerOneUsername: 'Teste 1',
-            playerTwoUsername: 'Teste 2',
-            start: new Date(),
-        },
-        {
-            id: 2,
-            playerOneUsername: 'Teste 1',
-            playerTwoUsername: 'Teste 2',
-            start: new Date(),
-        },
-        {
-            id: 3,
-            playerOneUsername: 'Teste 1',
-            playerTwoUsername: 'Teste 2',
-            start: new Date(),
+            id: 0,
+            playerOne: {
+                username: ''
+            },
+            playerTwo: {
+                username: ''
+            },
+            dStart: new Date(),
         }]
     }
-    
+
     constructor(props: DispatchProps) {
         super(props);
+    }
+
+    componentDidMount() {
+        RoomService.getRooms(0, 10)
+            .then(result => {
+                if (result.success) {
+                    this.setState(state => ({
+                        ...state,
+                        rooms: result.result,
+                    }));
+                } else {
+                    this.props.alertWarning('There is no game room right now.');
+                }
+            })
     }
 
     enterRoom(gameCode: string, roomId: number) {
@@ -77,13 +88,13 @@ class RoomList extends Component<DispatchProps, IState> {
                             <Row>
                                 <Col xs="6" md="9" lg="10">
                                     <Row>
-                                        <Col xs="12">{room.playerOneUsername}</Col>
+                                        <Col xs="12">{room.playerOne.username}</Col>
                                     </Row>
                                     <Row>
                                         <Col xs="12">x</Col>
                                     </Row>
                                     <Row>
-                                        <Col xs="12">{room.playerTwoUsername}</Col>
+                                        <Col xs="12">{room.playerTwo.username}</Col>
                                     </Row>
                                 </Col>
                                 <Col xs="6" md="3" lg="2" className="button-center" onClick={this.openModalGameCode.bind(this, room.id)}>
@@ -105,6 +116,6 @@ class RoomList extends Component<DispatchProps, IState> {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
-    bindActionCreators(AlertModalActions, dispatch);
+    bindActionCreators({ ...AlertModalActions, ...MessageActions }, dispatch);
 
 export default connect(null, mapDispatchToProps)(RoomList);

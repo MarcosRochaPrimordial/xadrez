@@ -30,10 +30,11 @@ code {
 
 .sys-alert {
   position: absolute;
-  top: 30px;
+  bottom: 60px;
   right: 60px;
   width: 330px;
   text-align: left;
+  z-index: 9999;
 }
 
 .spin-wrap {

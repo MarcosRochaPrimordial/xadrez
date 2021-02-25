@@ -1,10 +1,11 @@
 import { ResultNotification } from '../../core/models/ResultNotification';
 import { User } from '../../core/models/User';
+import UserStorage from './user.storage';
 import UserService from './user.service';
 
 class Auth {
     get authenticated(): boolean {
-        return UserService.userExists;
+        return UserStorage.userExists;
     }
 
     login(body: User): Promise<ResultNotification<User>> {
@@ -12,7 +13,7 @@ class Auth {
             UserService.login(body)
                 .then(response => {
                     if (response.success) {
-                        UserService.setUser(response.result);
+                        UserStorage.setUser(response.result);
                     }
                     resolve(response);
                 })
@@ -21,7 +22,7 @@ class Auth {
     }
 
     logout() {
-        UserService.clearUser();
+        UserStorage.clearUser();
     }
 }
 
