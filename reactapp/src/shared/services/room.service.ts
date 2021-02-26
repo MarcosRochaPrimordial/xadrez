@@ -7,8 +7,8 @@ class RoomService {
         return Api.Post('/room', { id: UserStorage.getUser().id });
     }
 
-    public getRooms(startPage: number, endPage: number) {
-        return Api.Get<Room[]>(`/room/${startPage}/${endPage}`);
+    public getRooms(startPage: number, endPage: number, searchWord: string = '') {
+        return Api.Get<Room[]>(`/room/${startPage}/${endPage}${!!searchWord ? `?search=${searchWord}` : ''}`);
     }
 }
 

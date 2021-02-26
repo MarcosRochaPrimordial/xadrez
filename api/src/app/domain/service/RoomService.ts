@@ -41,9 +41,9 @@ export class RoomService {
                 .catch(err => notification.addError(err).Success(false));
     }
 
-    public getRooms(pageStart: number, pageEnd: number): Promise<Notification<RoomDto[]>> {
+    public getRooms(pageStart: number, pageEnd: number, search: string = null): Promise<Notification<RoomDto[]>> {
         let notification = new Notification<RoomDto[]>();
-        return this.roomRepository.getRooms(pageStart, pageEnd)
+        return this.roomRepository.getRooms(pageStart, pageEnd, search)
             .then((rooms: Room[]) => {
                 let roomsDto = rooms.map(room => RoomDto.fromEntity(room));
                 return notification.setResult(roomsDto);

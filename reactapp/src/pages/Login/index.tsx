@@ -71,6 +71,7 @@ class Login extends Component<Props, IState> {
             UserService.signUp(body)
                 .then((data) => {
                     if (data.success) {
+                        this.signUp();
                         this.props.alertSuccess('User registered succesfully.');
                     } else {
                         this.props.alertFailure(data.errors.join('\n'));

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Path, Post } from "decorated-router";
+import { Body, Controller, Get, Path, Post, Query } from "decorated-router";
 import { RoomService } from "./../../domain/service/RoomService";
 import { Authentication } from "./../../infra/configs/Authentication";
 import { UserDto } from "./../../domain/dto/UserDto";
@@ -20,7 +20,7 @@ export class RoomController {
     }
 
     @Get('/:start/:end')
-    getRooms(@Path('start') start: number, @Path('end') end: number) {
-        return this.roomService.getRooms(start, end);
+    getRooms(@Path('start') start: number, @Path('end') end: number, @Query('search') search: string = null) {
+        return this.roomService.getRooms(start, end, search);
     }
 }

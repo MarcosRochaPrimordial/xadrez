@@ -10,10 +10,16 @@ import AlertModal from "../AlertModal";
 import * as AlertModalActions from '../../../core/store/ducks/AlertModal/actions';
 import * as MessageActions from './../../../core/store/ducks/Messages/actions';
 import RoomService from "../../services/room.service";
+import { ApplicationState } from "../../../core/store";
+import { Search } from "../../../core/store/ducks/Search/types";
 
 interface IState {
-    rooms: Room[],
-}
+    rooms: Room[]
+};
+
+interface StateProps {
+    search: Search;
+};
 
 interface DispatchProps {
     promptShow(message: string,
@@ -27,27 +33,46 @@ interface DispatchProps {
     alertWarning(message: string): void;
 };
 
-class RoomList extends Component<DispatchProps, IState> {
+type Props = StateProps & DispatchProps;
 
-    state = {
-        rooms: [{
-            id: 0,
-            playerOne: {
-                username: ''
-            },
-            playerTwo: {
-                username: ''
-            },
-            dStart: new Date(),
-        }]
+class RoomList extends Component<Props, IState> {
+
+    state: IState = {
+        rooms: [
+            {
+                id: 0,
+                playerOne: {
+                    username: ''
+                },
+                playerTwo: {
+                    username: ''
+                },
+                dStart: new Date(),
+            }
+        ]
     }
 
-    constructor(props: DispatchProps) {
+    constructor(props: Props) {
         super(props);
     }
 
     componentDidMount() {
-        RoomService.getRooms(0, 10)
+        this.getRooms(0, 10);
+    }
+
+    componentDidUpdate(previousProps: Props) {
+        if (
+            previousProps.search.searchWord !== this.props.search.searchWord
+            || ((previousProps.search.searchWord === this.props.search.searchWord)
+                && ((previousProps.search.pageStart !== this.props.search.pageStart)
+                    && (previousProps.search.pageEnd !== this.props.search.pageEnd)))
+        ) {
+            this.getRooms(this.props.search.pageStart, this.props.search.pageEnd, this.props.search.searchWord);
+        }
+    }
+
+    getRooms(startPage: number, endPage: number, searchWord: string = '') {
+        RoomService.getRooms(startPage, endPage, searchWord)
             .then(result => {
                 if (result.success) {
                     this.setState(state => ({
@@ -58,6 +83,7 @@ class RoomList extends Component<DispatchProps, IState> {
                     this.props.alertWarning('There is no game room right now.');
                 }
             })
+            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
     }
 
     enterRoom(gameCode: string, roomId: number) {
@@ -115,7 +141,12 @@ class RoomList extends Component<DispatchProps, IState> {
     }
 };
 
+const mapStateToProps = (state: ApplicationState) => ({
+    ...state,
+    search: state.search.search,
+});
+
 const mapDispatchToProps = (dispatch: Dispatch) =>
     bindActionCreators({ ...AlertModalActions, ...MessageActions }, dispatch);
 
-export default connect(null, mapDispatchToProps)(RoomList);
+export default connect(mapStateToProps, mapDispatchToProps)(RoomList);

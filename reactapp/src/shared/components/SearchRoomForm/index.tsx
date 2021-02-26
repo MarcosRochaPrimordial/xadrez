@@ -6,7 +6,12 @@ import { bindActionCreators, Dispatch } from 'redux';
 import AlertModal from "../AlertModal";
 import * as AlertModalActions from './../../../core/store/ducks/AlertModal/actions';
 import * as MessagesActions from './../../../core/store/ducks/Messages/actions';
+import * as SearchActions from './../../../core/store/ducks/Search/actions';
 import RoomService from './../../services/room.service';
+
+interface IState {
+    search: string;
+};
 
 interface DispatchProps {
     modalShow(message: string,
@@ -18,9 +23,14 @@ interface DispatchProps {
     alertSuccess(message: string): void;
     alertFailure(message: string): void;
     alertWarning(message: string): void;
+    searchAction(searchWord: string): void;
 };
 
-class SearchRoomForm extends Component<DispatchProps> {
+class SearchRoomForm extends Component<DispatchProps, IState> {
+
+    state: IState = {
+        search: '',
+    };
 
     openModalCreateRoom() {
         this.props.modalShow(
@@ -39,6 +49,7 @@ class SearchRoomForm extends Component<DispatchProps> {
         RoomService.createRoom()
             .then(result => {
                 if (result.success) {
+                    this.props.searchAction(this.state.search);
                     this.props.alertSuccess('A game room was created successfully');
                 } else {
                     this.props.alertFailure('An error has occurred. Try again later.');
@@ -47,16 +58,20 @@ class SearchRoomForm extends Component<DispatchProps> {
             .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
     }
 
+    searchRoom() {
+        this.props.searchAction(this.state.search);
+    }
+
     render() {
         return (
             <>
                 <Container>
                     <Row>
                         <Col className="mb-10" xs="12" lg="8">
-                            <Form.Control placeholder="Search for rooms..." type="text"></Form.Control>
+                            <Form.Control placeholder="Search for rooms..." type="text" value={this.state.search} onChange={event => this.setState(state => ({ ...state, search: event.target.value }))}></Form.Control>
                         </Col>
                         <Col className="mb-10" lg="2" xs="12">
-                            <Button variant="primary" block>Search</Button>
+                            <Button variant="primary" block onClick={this.searchRoom.bind(this)}>Search</Button>
                         </Col>
                         <Col className="mb-10" lg="2" xs="12">
                             <Button variant="secondary" block onClick={this.openModalCreateRoom.bind(this)}>Create room</Button>
@@ -70,6 +85,6 @@ class SearchRoomForm extends Component<DispatchProps> {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
-    bindActionCreators({ ...AlertModalActions, ...MessagesActions }, dispatch);
+    bindActionCreators({ ...AlertModalActions, ...MessagesActions, ...SearchActions }, dispatch);
 
 export default connect(null, mapDispatchToProps)(SearchRoomForm);

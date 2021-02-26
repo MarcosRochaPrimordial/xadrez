@@ -20,7 +20,7 @@ export class RoomRepository extends BaseRepository {
         });
     }
 
-    public getRooms(startPage: number, endPage: number): Promise<Room[]> {
+    public getRooms(startPage: number, endPage: number, search: string = null): Promise<Room[]> {
         return new Promise((resolve, reject) => {
             this.Query<Room[]>(`SELECT r.id
                                      , u_one.id id_one
@@ -33,8 +33,11 @@ export class RoomRepository extends BaseRepository {
                                     ON r.player_one_id = u_one.id
                              LEFT JOIN user u_two
                                     ON r.player_two_id = u_two.id
+                                 WHERE (? IS NULL
+                                    OR (u_one.username LIKE ?)
+                                    OR (u_two.username LIKE ?))
                                  LIMIT ?
-                                OFFSET ?`, [endPage, startPage])
+                                OFFSET ?`, [search, `%${search}%`, `%${search}%`, endPage, startPage])
                 .then((rooms: any[]) => {
                     resolve(rooms.map(room => ({
                         id: room.id,
