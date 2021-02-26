@@ -55,9 +55,17 @@ export class RoomService {
         let notification = new Notification<RoomDto>();
         return this.roomRepository.getRoomByIdValidateUser(roomId, userId)
             .then((room: Room) => {
-                if (room !== null) {
+                if (!!room) {
                     let roomDto = RoomDto.fromEntity(room);
-                    return notification.setResult(roomDto);
+                    if (room.player_one.id !== userId) {
+                        return this.roomRepository.setPlayer2ToUser(roomId, userId)
+                            .then((rows: number) => {
+                                return notification.setResult(roomDto);
+                            })
+                            .catch(err => notification.addError('An error has occurred').Success(false));
+                    } else {
+                        return notification.setResult(roomDto);
+                    }
                 } else {
                     return notification.setResult(null);
                 }

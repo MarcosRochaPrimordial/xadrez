@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Card, Col, Container, Row } from "react-bootstrap";
+import { Card, Container } from "react-bootstrap";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
@@ -12,6 +12,7 @@ import * as MessageActions from './../../../core/store/ducks/Messages/actions';
 import RoomService from "../../services/room.service";
 import { ApplicationState } from "../../../core/store";
 import { Search } from "../../../core/store/ducks/Search/types";
+import LineRoom from "./LineRoom";
 
 interface IState {
     rooms: Room[]
@@ -94,7 +95,7 @@ class RoomList extends Component<Props, IState> {
         RoomService.verifyRoomCode(roomId, gameCode)
             .then(result => {
                 if (result.success) {
-                    this.props.history.push(`/playarea/${roomId}`);
+                    this.getBackToRoom(roomId);
                 } else {
                     this.props.alertWarning('Wrong room code');
                 }
@@ -117,30 +118,17 @@ class RoomList extends Component<Props, IState> {
         );
     }
 
+    getBackToRoom(roomId: number) {
+        this.props.history.push(`/playarea/${roomId}`);
+    }
+
     render() {
         return (
             <>
                 <Container>
                     {this.state.rooms.map(room => (
                         <Card key={room.id} body>
-                            <Row>
-                                <Col xs="6" md="9" lg="10">
-                                    <Row>
-                                        <Col xs="12">{room.playerOne.username}</Col>
-                                    </Row>
-                                    <Row>
-                                        <Col xs="12">x</Col>
-                                    </Row>
-                                    <Row>
-                                        <Col xs="12">{room.playerTwo.username}</Col>
-                                    </Row>
-                                </Col>
-                                <Col xs="6" md="3" lg="2" className="button-center" onClick={this.openModalGameCode.bind(this, room.id)}>
-                                    <Button variant="info" block>
-                                        Enter
-                                    </Button>
-                                </Col>
-                            </Row>
+                            <LineRoom room={room} getBackToRoom={this.getBackToRoom.bind(this)} openModalGameCode={this.openModalGameCode.bind(this)} />
                         </Card>
                     ))}
                     <div className="mt-10 pagination-position">

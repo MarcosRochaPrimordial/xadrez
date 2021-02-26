@@ -59,7 +59,7 @@ export class RoomRepository extends BaseRepository {
         });
     }
 
-    public getRoomByIdValidateUser(roomId: number, userId: number = null) {
+    public getRoomByIdValidateUser(roomId: number, userId: number = null): Promise<Room> {
         return new Promise((resolve, reject) => {
             this.Query<any[]>(`SELECT r.id
                                    , u_one.id id_one
@@ -74,14 +74,27 @@ export class RoomRepository extends BaseRepository {
                            LEFT JOIN user u_two
                                   ON r.player_two_id = u_two.id
                                WHERE r.id = ?
-                                 AND (? IS NULL
-                                  OR (u_one.id = ?)
-                                  OR (u_two.id = ?))`, [roomId, userId, userId, userId])
+                                 AND ((? IS NULL
+                                  OR (u_one.id = ?))
+                                  OR (u_two.id IS NULL
+                                  OR u_two.id = ?))`, [roomId, userId, userId, userId])
                 .then((rooms: any[]) => {
                     resolve(this.mapRoom(rooms)[0]);
                 })
                 .catch(err => reject(err));
         });
+    }
+
+    public setPlayer2ToUser(roomId, userId: number): Promise<number> {
+        return new Promise((resolve, reject) => {
+            this.Query(`UPDATE room
+                           SET player_two_id = ?
+                         WHERE id = ?`, [userId, roomId])
+                .then((result: any) => {
+                    resolve(result.changedRows);
+                })
+                .catch(err => reject(err));
+        })
     }
 
     private mapRoom(rooms: any[]): Room[] {

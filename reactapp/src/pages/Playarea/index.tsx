@@ -89,7 +89,7 @@ class Playarea extends Component<Props, IState> {
 
     componentDidMount() {
         const { match } = this.props;
-        RoomService.getRoom(match.params.id, UserStorage.getUser().id)
+        RoomService.getRoomAndApply(match.params.id, UserStorage.getUser().id)
             .then(result => {
                 if (result.success && result.result !== null) {
                     this.setState(state => ({

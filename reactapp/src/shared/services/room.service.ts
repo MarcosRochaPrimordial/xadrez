@@ -11,14 +11,12 @@ class RoomService {
         return Api.Get<Room[]>(`/room/page/${startPage}/${endPage}${!!searchWord ? `?search=${searchWord}` : ''}`);
     }
 
-    public getRoom(roomId: number, userId?: number) {
-        return Api.Get<Room>(`/room/${roomId}${!!userId ? `?userId=${userId}` : ''}`);
+    public getRoomAndApply(roomId: number, userId?: number) {
+        return Api.Get<Room>(`/room/apply/${roomId}${!!userId ? `?userId=${userId}` : ''}`);
     }
 
     public verifyRoomCode(roomId: number, gameCode: string) {
-        let url = `/room/code/${roomId}/${gameCode}`;
-        console.log(url);
-        return Api.Get(url);
+        return Api.Get(`/room/code/${roomId}/${gameCode}`);
     }
 }
 

@@ -19,7 +19,7 @@ export class RoomController {
         return this.roomService.createRoom(userDto.id);
     }
 
-    @Get('/:roomId')
+    @Get('/apply/:roomId')
     getRoom(@Path('roomId') roomId: number, @Query('userId') userId: number = null) {
         return this.roomService.getRoomByIdValidateUser(roomId, userId);
     }
