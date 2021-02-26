@@ -1,7 +1,15 @@
-import { Component } from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from "redux";
 
 import { Col, FieldModel, Row } from "../../core/models/FieldModel";
+import { Room } from "../../core/models/Room";
 import FieldList from '../../shared/components/FieldList';
+import Header from "../../shared/components/Header";
+import RoomService from "../../shared/services/room.service";
+import UserStorage from "../../shared/services/user.storage";
+import * as MessageActions from './../../core/store/ducks/Messages/actions';
+import './playarea.css';
 
 function fieldColor(rowIndex: number, colorIndex: number) {
     if (rowIndex % 2 !== 0) {
@@ -40,28 +48,83 @@ function buildBoard() {
 
 interface IState {
     chessBoard: Row[],
+    room: Room,
+};
+
+interface DispatchProps {
+    alertFailure(message: string): void;
 }
 
-export default class Playarea extends Component<any, IState> {
+interface OwnProps {
+    match: {
+        params: {
+            id: number,
+        }
+    },
+    history: any,
+};
 
-    state = {
-        chessBoard: buildBoard()
+type Props = DispatchProps & OwnProps;
+
+class Playarea extends Component<Props, IState> {
+
+    state: IState = {
+        chessBoard: buildBoard(),
+        room: {
+            id: 0,
+            gameCode: '',
+            playerOne: {
+                username: ''
+            },
+            playerTwo: {
+                username: ''
+            },
+            dStart: new Date(),
+        }
     };
 
     constructor(props: any) {
         super(props);
     }
 
+    componentDidMount() {
+        const { match } = this.props;
+        RoomService.getRoom(match.params.id, UserStorage.getUser().id)
+            .then(result => {
+                if (result.success && result.result !== null) {
+                    this.setState(state => ({
+                        ...state,
+                        room: result.result
+                    }));
+                } else {
+                    this.props.alertFailure('Not available');
+                    this.props.history.push('/');
+                }
+            })
+    }
+
     render() {
         const { chessBoard } = this.state;
+        const { history } = this.props;
+
         return (
             <div>
-                <div className="chess-board">
-                    {chessBoard.map(i => (
-                        <FieldList key={i.rowLocation} fields={i.cols} />
-                    ))}
-                </div>
+                {this.state.room.id !== 0 && (
+                    <>
+                        <Header history={history} gameCode={this.state.room.gameCode} />
+                        <div className="chess-board">
+                            {chessBoard.map(i => (
+                                <FieldList key={i.rowLocation} fields={i.cols} />
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
         );
     }
 }
+
+const mapDispatchToProps = (dispatch: Dispatch) => 
+    bindActionCreators({ ...MessageActions }, dispatch);
+
+export default connect(null, mapDispatchToProps)(Playarea);

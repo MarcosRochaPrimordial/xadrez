@@ -28,8 +28,12 @@ code {
   margin-top: 10px;
 }
 
+.mr-10 {
+  margin-right: 10px;
+}
+
 .sys-alert {
-  position: absolute;
+  position: fixed;
   bottom: 60px;
   right: 60px;
   width: 330px;

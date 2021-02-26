@@ -18,7 +18,11 @@ interface DispatchProps {
     paginateAction(pageStart: number, pageEnd: number): void;
 };
 
-type Props = StateProps & DispatchProps;
+interface OwnProps {
+    data: any[];
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
 
 class PaginationLayout extends Component<Props, IState> {
 
@@ -72,7 +76,7 @@ class PaginationLayout extends Component<Props, IState> {
 
                 <Pagination.Item active>{this.state.actualIndex}</Pagination.Item>
 
-                <Pagination.Next onClick={this.nextPage.bind(this)}/>
+                <Pagination.Next disabled={this.props.data.length < 10} onClick={this.nextPage.bind(this)}/>
             </Pagination>
         );
     }

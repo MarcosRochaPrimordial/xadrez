@@ -9,7 +9,7 @@ const Routes: React.FC = () => {
     return (
         <Switch>
             <ProtectedRoute exact path="/" component={Home} />
-            <ProtectedRoute exact path="/playarea" component={Playarea} />
+            <ProtectedRoute exact path="/playarea/:id" component={Playarea} />
             <Route path="/login" component={Login} />
         </Switch>
     );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import { Redirect, Route } from "react-router-dom";
 import auth from '../shared/services/auth.service';
 

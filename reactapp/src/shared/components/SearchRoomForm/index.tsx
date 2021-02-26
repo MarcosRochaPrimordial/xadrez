@@ -26,7 +26,13 @@ interface DispatchProps {
     searchAction(searchWord: string): void;
 };
 
-class SearchRoomForm extends Component<DispatchProps, IState> {
+interface OwnProps {
+    history: any[];
+};
+
+type Props = DispatchProps & OwnProps;
+
+class SearchRoomForm extends Component<Props, IState> {
 
     state: IState = {
         search: '',
@@ -49,7 +55,7 @@ class SearchRoomForm extends Component<DispatchProps, IState> {
         RoomService.createRoom()
             .then(result => {
                 if (result.success) {
-                    this.props.searchAction(this.state.search);
+                    this.props.history.push(`/playarea/${result.result.id}`);
                     this.props.alertSuccess('A game room was created successfully');
                 } else {
                     this.props.alertFailure('An error has occurred. Try again later.');

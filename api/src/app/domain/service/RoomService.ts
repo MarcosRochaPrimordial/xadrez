@@ -4,7 +4,6 @@ import * as crypto from 'crypto-js';
 import { RoomRepository } from "./../../infra/repository/RoomRepository";
 import { Room } from "../entity/Room";
 import { RoomDto } from "../dto/RoomDto";
-import { UserDto } from "../dto/UserDto";
 
 
 @Injectable()
@@ -13,8 +12,8 @@ export class RoomService {
         private roomRepository: RoomRepository,
     ) { }
 
-    public async createRoom(userId: number): Promise<Notification> {
-        let notification = new Notification();
+    public async createRoom(userId: number): Promise<Notification<Room>> {
+        let notification = new Notification<Room>();
         let code: string = null;
         let game: Room = null;
 
@@ -33,7 +32,8 @@ export class RoomService {
         return this.roomRepository.Insert<Room>(room)
                 .then((insertedId: number) => {
                     if (!!insertedId) {
-                        return notification.Success();
+                        room.id = insertedId;
+                        return notification.setResult(room);
                     } else {
                         return notification.addError('An error has occurred').Success(false)
                     }
@@ -47,6 +47,33 @@ export class RoomService {
             .then((rooms: Room[]) => {
                 let roomsDto = rooms.map(room => RoomDto.fromEntity(room));
                 return notification.setResult(roomsDto);
+            })
+            .catch(err => notification.addError('An error has occurred').Success(false));
+    }
+
+    public getRoomByIdValidateUser(roomId: number, userId: number = null): Promise<Notification<RoomDto>> {
+        let notification = new Notification<RoomDto>();
+        return this.roomRepository.getRoomByIdValidateUser(roomId, userId)
+            .then((room: Room) => {
+                if (room !== null) {
+                    let roomDto = RoomDto.fromEntity(room);
+                    return notification.setResult(roomDto);
+                } else {
+                    return notification.setResult(null);
+                }
+            })
+            .catch(err => notification.addError('An error has occurred').Success(false));
+    }
+
+    public async verifyRoomCode(roomId: number, gameCode: string): Promise<Notification> {
+        let notification = new Notification();
+        return this.roomRepository.verifyRoomCode(roomId, gameCode)
+            .then((room: Room) => {
+                if (room !== null) {
+                    return notification.Success(true);
+                } else {
+                    return notification.Success(false);
+                }
             })
             .catch(err => notification.addError('An error has occurred').Success(false));
     }

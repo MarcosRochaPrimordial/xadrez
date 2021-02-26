@@ -24,9 +24,9 @@ export default class Home extends Component<OwnProps, IState> {
             <div>
                 <Header history={history} />
                 <div className="mt-20">
-                    <SearchRoomForm />
+                    <SearchRoomForm history={history} />
                     <div className="mt-20">
-                        <RoomList />
+                        <RoomList history={history} />
                     </div>
                 </div>
             </div>

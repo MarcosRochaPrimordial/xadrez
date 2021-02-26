@@ -33,7 +33,11 @@ interface DispatchProps {
     alertWarning(message: string): void;
 };
 
-type Props = StateProps & DispatchProps;
+interface OwnProps {
+    history: any[];
+};
+
+type Props = StateProps & DispatchProps & OwnProps;
 
 class RoomList extends Component<Props, IState> {
 
@@ -87,7 +91,15 @@ class RoomList extends Component<Props, IState> {
     }
 
     enterRoom(gameCode: string, roomId: number) {
-        console.log(gameCode, 'to room', roomId);
+        RoomService.verifyRoomCode(roomId, gameCode)
+            .then(result => {
+                if (result.success) {
+                    this.props.history.push(`/playarea/${roomId}`);
+                } else {
+                    this.props.alertWarning('Wrong room code');
+                }
+            })
+            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
     }
 
     openModalGameCode(roomId: number) {
@@ -132,7 +144,7 @@ class RoomList extends Component<Props, IState> {
                         </Card>
                     ))}
                     <div className="mt-10 pagination-position">
-                        <PaginationLayout />
+                        <PaginationLayout data={this.state.rooms} />
                     </div>
                 </Container>
                 <AlertModal />
