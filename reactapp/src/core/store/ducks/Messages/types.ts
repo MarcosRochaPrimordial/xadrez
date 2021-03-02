@@ -2,9 +2,10 @@
  * Action Types
  */
 export enum MessagesTypes {
-    SUCCESS = '@Messages/SUCCES',
+    SUCCESS = '@Messages/SUCCESS',
     FAILURE = '@Messages/FAILURE',
     WARNING = '@Messages/WARNING',
+    DISMISS = '@Messages/DISMISS',
 };
 
 /**

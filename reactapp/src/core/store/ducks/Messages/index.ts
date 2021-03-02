@@ -37,6 +37,12 @@ const reducer: Reducer<MessagesState> = (state = INITIAL_STATE, action) => {
                 ...state,
                 messages: [...state.messages],
             };
+        case MessagesTypes.DISMISS:
+            state.messages.splice(0, 1);
+            return {
+                ...state,
+                messages: [...state.messages],
+            }
         default:
             return state;
     }

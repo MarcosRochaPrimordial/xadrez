@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Form, Container, Row, Col, Button } from 'react-bootstrap';
 import { bindActionCreators, Dispatch } from 'redux';
 
@@ -8,12 +8,6 @@ import auth from '../../shared/services/auth.service';
 import UserService from './../../shared/services/user.service';
 import * as MessagesActions from './../../core/store/ducks/Messages/actions';
 import { connect } from 'react-redux';
-
-interface IState {
-    isLogin: boolean,
-    username: string,
-    password: string,
-};
 
 interface DispatchProps {
     alertSuccess(message: string): void;
@@ -26,99 +20,83 @@ interface OwnProps {
 
 type Props = DispatchProps & OwnProps;
 
-class Login extends Component<Props, IState> {
-    state = {
-        isLogin: true,
-        username: '',
-        password: '',
-    };
+const Login = (props: Props) => {
+    const [isLogin, setIsLogin]: [boolean, Function] = useState(true);
+    const [username, setUsername]: [string, Function] = useState('');
+    const [password, setPassword]: [string, Function] = useState('');
 
-    constructor(props: any) {
-        super(props);
+    const signUp = () => {
+        setIsLogin(!isLogin);
     }
 
-    verifyForm() {
-        return !this.state.username || !this.state.password;
-    }
-
-    signUp() {
-        this.setState(state => ({
-            isLogin: !state.isLogin,
-            username: '',
-            password: '',
-        }))
-    }
-
-    sign() {
+    const sign = () => {
         const body = {
-            username: this.state.username,
-            password: this.state.password
+            username,
+            password
         };
 
-        if (this.state.isLogin) {
+        if (isLogin) {
             auth.login(body)
                 .then((data) => {
                     if (data.success) {
-                        this.props.history.push('/');
+                        props.history.push('/');
                     } else {
-                        this.props.alertFailure(data.errors.join('\n'));
+                        props.alertFailure(data.errors.join('\n'));
                     }
                 })
                 .catch(err => {
-                    this.props.alertFailure('An error has occurred. Try again later.');
+                    props.alertFailure('An error has occurred. Try again later.');
                 });
         } else {
             UserService.signUp(body)
                 .then((data) => {
                     if (data.success) {
-                        this.signUp();
-                        this.props.alertSuccess('User registered succesfully.');
+                        signUp();
+                        props.alertSuccess('User registered succesfully.');
                     } else {
-                        this.props.alertFailure(data.errors.join('\n'));
+                        props.alertFailure(data.errors.join('\n'));
                     }
                 })
                 .catch(err => {
-                    this.props.alertFailure('An error has occurred. Try again later.');
+                    props.alertFailure('An error has occurred. Try again later.');
                 });
         }
     }
 
-    render() {
-        return (
-            <Container fluid className="login">
-                <img src={logo} className="logo" alt="logo" />
-                <Form className="form-fluid">
-                    <Form.Group>
-                        <Row className="justify-content-center">
-                            <Col xs="12" sm="9" md="7" lg="5" xl="4">
-                                <Row className="mb-20">
-                                    <Col lg="12">
-                                        <Form.Control type="text" placeholder="User" size="lg" value={this.state.username} onChange={event => this.setState(() => ({ username: event.target.value }))} />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-20">
-                                    <Col lg="12">
-                                        <Form.Control type="password" placeholder="Password" size="lg" value={this.state.password} onChange={event => this.setState(() => ({ password: event.target.value }))} />
-                                    </Col>
-                                </Row>
-                                <Row className="mb-10">
-                                    <Col lg="12">
-                                        <Button variant="primary" disabled={!this.state.username || !this.state.password} onClick={this.sign.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign in' : 'Create Account'}</Button>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col lg="12">
-                                        <Button variant="secondary" onClick={this.signUp.bind(this)} size="lg" block>{this.state.isLogin ? 'Sign up' : 'Back'}</Button>
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-                </Form>
-            </Container>
-        );
-    }
-}
+    return (
+        <Container fluid className="login">
+            <img src={logo} className="logo" alt="logo" />
+            <Form className="form-fluid">
+                <Form.Group>
+                    <Row className="justify-content-center">
+                        <Col xs="12" sm="9" md="7" lg="5" xl="4">
+                            <Row className="mb-20">
+                                <Col lg="12">
+                                    <Form.Control type="text" placeholder="User" size="lg" value={username} onChange={event => setUsername(event.target.value)} />
+                                </Col>
+                            </Row>
+                            <Row className="mb-20">
+                                <Col lg="12">
+                                    <Form.Control type="password" placeholder="Password" size="lg" value={password} onChange={event => setPassword(event.target.value)} />
+                                </Col>
+                            </Row>
+                            <Row className="mb-10">
+                                <Col lg="12">
+                                    <Button variant="primary" disabled={!username || !password} onClick={sign.bind(this)} size="lg" block>{isLogin ? 'Sign in' : 'Create Account'}</Button>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col lg="12">
+                                    <Button variant="secondary" onClick={signUp.bind(this)} size="lg" block>{isLogin ? 'Sign up' : 'Back'}</Button>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Form.Group>
+            </Form>
+        </Container>
+    );
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
     bindActionCreators(MessagesActions, dispatch);

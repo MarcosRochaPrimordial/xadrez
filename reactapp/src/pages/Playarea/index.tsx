@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 
@@ -46,11 +46,6 @@ function buildBoard() {
     return buildedBoard;
 }
 
-interface IState {
-    chessBoard: Row[],
-    room: Room,
-};
-
 interface DispatchProps {
     alertFailure(message: string): void;
 }
@@ -66,65 +61,51 @@ interface OwnProps {
 
 type Props = DispatchProps & OwnProps;
 
-class Playarea extends Component<Props, IState> {
+const Playarea = (props: Props) => {
+    const { history, alertFailure } = props;
+    const [chessBoard, setChessBoard]: [Row[], Function] = useState(buildBoard());
+    const [room, setRoom]: [Room, Function] = useState({
+        id: 0,
+        gameCode: '',
+        playerOne: {
+            username: ''
+        },
+        playerTwo: {
+            username: ''
+        },
+        dStart: new Date(),
+    });
 
-    state: IState = {
-        chessBoard: buildBoard(),
-        room: {
-            id: 0,
-            gameCode: '',
-            playerOne: {
-                username: ''
-            },
-            playerTwo: {
-                username: ''
-            },
-            dStart: new Date(),
-        }
-    };
-
-    constructor(props: any) {
-        super(props);
-    }
-
-    componentDidMount() {
-        const { match } = this.props;
+    useEffect(() => {
+        const { match } = props;
         RoomService.getRoomAndApply(match.params.id, UserStorage.getUser().id)
             .then(result => {
                 if (result.success && result.result !== null) {
-                    this.setState(state => ({
-                        ...state,
-                        room: result.result
-                    }));
+                    setRoom(result.result);
                 } else {
-                    this.props.alertFailure('Not available');
-                    this.props.history.push('/');
+                    alertFailure('Not available');
+                    history.push('/');
                 }
             })
-    }
+    }, []);
 
-    render() {
-        const { chessBoard } = this.state;
-        const { history } = this.props;
+    return (
+        <div>
+            {room.id !== 0 && (
+                <>
+                    <Header history={history} gameCode={room.gameCode} />
+                    <div className="chess-board">
+                        {chessBoard.map(i => (
+                            <FieldList key={i.rowLocation} fields={i.cols} />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
-        return (
-            <div>
-                {this.state.room.id !== 0 && (
-                    <>
-                        <Header history={history} gameCode={this.state.room.gameCode} />
-                        <div className="chess-board">
-                            {chessBoard.map(i => (
-                                <FieldList key={i.rowLocation} fields={i.cols} />
-                            ))}
-                        </div>
-                    </>
-                )}
-            </div>
-        );
-    }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => 
+const mapDispatchToProps = (dispatch: Dispatch) =>
     bindActionCreators({ ...MessageActions }, dispatch);
 
 export default connect(null, mapDispatchToProps)(Playarea);

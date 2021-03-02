@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Container } from "react-bootstrap";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -13,10 +13,7 @@ import RoomService from "../../services/room.service";
 import { ApplicationState } from "../../../core/store";
 import { Search } from "../../../core/store/ducks/Search/types";
 import LineRoom from "./LineRoom";
-
-interface IState {
-    rooms: Room[]
-};
+import { usePrevious } from "../../utils/UsePrevious";
 
 interface StateProps {
     search: Search;
@@ -40,106 +37,99 @@ interface OwnProps {
 
 type Props = StateProps & DispatchProps & OwnProps;
 
-class RoomList extends Component<Props, IState> {
+const RoomList = (props: Props) => {
+    const { search } = props;
+    const prevSearch = usePrevious<Search>(search);
 
-    state: IState = {
-        rooms: [
-            {
-                id: 0,
-                playerOne: {
-                    username: ''
-                },
-                playerTwo: {
-                    username: ''
-                },
-                dStart: new Date(),
-            }
-        ]
-    }
+    useEffect(() => {
+        getRooms(0, 10);
+    }, []);
 
-    constructor(props: Props) {
-        super(props);
-    }
-
-    componentDidMount() {
-        this.getRooms(0, 10);
-    }
-
-    componentDidUpdate(previousProps: Props) {
-        if (
-            previousProps.search.searchWord !== this.props.search.searchWord
-            || ((previousProps.search.searchWord === this.props.search.searchWord)
-                && ((previousProps.search.pageStart !== this.props.search.pageStart)
-                    && (previousProps.search.pageEnd !== this.props.search.pageEnd)))
+    useEffect(() => {
+        if (prevSearch &&
+            (
+                prevSearch.searchWord !== search.searchWord
+                || ((prevSearch.searchWord === search.searchWord)
+                    && ((prevSearch.pageStart !== search.pageStart)
+                        &&prevSearch.pageEnd !== search.pageEnd))
+            )
         ) {
-            this.getRooms(this.props.search.pageStart, this.props.search.pageEnd, this.props.search.searchWord);
+            getRooms(search.pageStart, search.pageEnd, search.searchWord);
         }
-    }
+    }, [search]);
 
-    getRooms(startPage: number, endPage: number, searchWord: string = '') {
+    const [rooms, setRooms] = useState([
+        {
+            id: 0,
+            playerOne: {
+                username: ''
+            },
+            playerTwo: {
+                username: ''
+            },
+            dStart: new Date(),
+        }
+    ]);
+
+    const getRooms = (startPage: number, endPage: number, searchWord: string = '') => {
         RoomService.getRooms(startPage, endPage, searchWord)
             .then(result => {
                 if (result.success) {
-                    this.setState(state => ({
-                        ...state,
-                        rooms: result.result,
-                    }));
+                    setRooms(result.result);
                 } else {
-                    this.props.alertWarning('There is no game room right now.');
+                    props.alertWarning('There is no game room right now.');
                 }
             })
-            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
+            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
     }
 
-    enterRoom(gameCode: string, roomId: number) {
+    const enterRoom = (gameCode: string, roomId: number) => {
         RoomService.verifyRoomCode(roomId, gameCode)
             .then(result => {
                 if (result.success) {
-                    this.getBackToRoom(roomId);
+                    getBackToRoom(roomId);
                 } else {
-                    this.props.alertWarning('Wrong room code');
+                    props.alertWarning('Wrong room code');
                 }
             })
-            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
+            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
     }
 
-    openModalGameCode(roomId: number) {
-        this.props.promptShow(
+    const openModalGameCode = (roomId: number) => {
+        props.promptShow(
             'Enter with the code of the room',
             'Ok',
             'Cancel',
             (gameCode: string) => {
-                this.enterRoom.call(this, gameCode, roomId);
-                this.props.modalHide();
+                enterRoom.call(this, gameCode, roomId);
+                props.modalHide();
             },
             () => {
-                this.props.modalHide.call(this)
+                props.modalHide.call(this)
             },
         );
     }
 
-    getBackToRoom(roomId: number) {
-        this.props.history.push(`/playarea/${roomId}`);
+    const getBackToRoom = (roomId: number) => {
+        props.history.push(`/playarea/${roomId}`);
     }
 
-    render() {
-        return (
-            <>
-                <Container>
-                    {this.state.rooms.map(room => (
-                        <Card key={room.id} body>
-                            <LineRoom room={room} getBackToRoom={this.getBackToRoom.bind(this)} openModalGameCode={this.openModalGameCode.bind(this)} />
-                        </Card>
-                    ))}
-                    <div className="mt-10 pagination-position">
-                        <PaginationLayout data={this.state.rooms} />
-                    </div>
-                </Container>
-                <AlertModal />
-            </>
-        );
-    }
-};
+    return (
+        <>
+            <Container>
+                {rooms.map(room => (
+                    <Card key={room.id} body>
+                        <LineRoom room={room} getBackToRoom={getBackToRoom.bind(this)} openModalGameCode={openModalGameCode.bind(this)} />
+                    </Card>
+                ))}
+                <div className="mt-10 pagination-position">
+                    <PaginationLayout data={rooms} />
+                </div>
+            </Container>
+            <AlertModal />
+        </>
+    );
+}
 
 const mapStateToProps = (state: ApplicationState) => ({
     ...state,

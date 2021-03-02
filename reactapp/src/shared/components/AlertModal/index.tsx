@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -6,10 +6,6 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { ApplicationState } from "../../../core/store";
 import { AlertModalInfo } from "../../../core/store/ducks/AlertModal/types";
 import * as AlertModalActions from '../../../core/store/ducks/AlertModal/actions';
-
-interface IState {
-    prompt: string;
-}
 
 interface StateProps {
     info: AlertModalInfo;
@@ -21,60 +17,57 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps;
 
-class AlertModal extends Component<Props, IState> {
+const AlertModal = (props: Props) => {
 
-    state = {
-        prompt: ''
-    };
+    const [promptValue, setPromptValue]: [string, Function] = useState('');
 
-    handleClose() {
-        this.props.modalHide();
+    const { show,
+        message,
+        prompt,
+        buttonPrimaryLabel,
+        buttonSecondaryLabel,
+        buttonPrimaryAction,
+        buttonSecondaryAction } = props.info;
+    const { modalHide } = props;
+
+    const handleClose = () => {
+        modalHide();
     }
 
-    render() {
-        const { show,
-            message,
-            prompt,
-            buttonPrimaryLabel,
-            buttonSecondaryLabel,
-            buttonPrimaryAction,
-            buttonSecondaryAction } = this.props.info;
-
-        return (
-            <Modal
-                show={show}
-                onHide={this.handleClose.bind(this)}
-                backdrop={true}
-                keyboard={false} >
-                <Modal.Header closeButton>
-                    <Modal.Title>Action</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div>
-                        {message}
-                    </div>
-                    <div>
-                        {prompt && (
-                            <Form.Group>
-                                <Form.Control type="text" value={this.state.prompt} onChange={event => this.setState(state => ({ ...state, prompt: event.target.value }))} />
-                            </Form.Group>
-                        )}
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    {!!buttonSecondaryLabel && (
-                        <Button variant="secondary" onClick={!!buttonSecondaryAction ? buttonSecondaryAction.bind(this, this.state.prompt) : undefined}>
-                            {buttonSecondaryLabel}
-                        </Button>
+    return (
+        <Modal
+            show={show}
+            onHide={handleClose.bind(this)}
+            backdrop={true}
+            keyboard={false} >
+            <Modal.Header closeButton>
+                <Modal.Title>Action</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div>
+                    {message}
+                </div>
+                <div>
+                    {prompt && (
+                        <Form.Group>
+                            <Form.Control type="text" value={promptValue} onChange={event => setPromptValue(event.target.value)} />
+                        </Form.Group>
                     )}
-                    <Button variant="primary" disabled={prompt && !this.state.prompt} onClick={!!buttonPrimaryAction ? buttonPrimaryAction.bind(this, this.state.prompt) : undefined}>
-                        {buttonPrimaryLabel}
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                {!!buttonSecondaryLabel && (
+                    <Button variant="secondary" onClick={!!buttonSecondaryAction ? buttonSecondaryAction.bind(this, promptValue) : undefined}>
+                        {buttonSecondaryLabel}
                     </Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    }
-}
+                )}
+                <Button variant="primary" disabled={prompt && !promptValue} onClick={!!buttonPrimaryAction ? buttonPrimaryAction.bind(this, promptValue) : undefined}>
+                    {buttonPrimaryLabel}
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+};
 
 const mapStateToProps = (state: ApplicationState) => ({
     info: state.modal.alertModal,

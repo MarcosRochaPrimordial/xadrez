@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -8,10 +8,6 @@ import * as AlertModalActions from './../../../core/store/ducks/AlertModal/actio
 import * as MessagesActions from './../../../core/store/ducks/Messages/actions';
 import * as SearchActions from './../../../core/store/ducks/Search/actions';
 import RoomService from './../../services/room.service';
-
-interface IState {
-    search: string;
-};
 
 interface DispatchProps {
     modalShow(message: string,
@@ -32,63 +28,67 @@ interface OwnProps {
 
 type Props = DispatchProps & OwnProps;
 
-class SearchRoomForm extends Component<Props, IState> {
+const SearchRoomForm = (props: Props) => {
+    const [search, setSearch]: [string, Function] = useState('');
 
-    state: IState = {
-        search: '',
-    };
-
-    openModalCreateRoom() {
-        this.props.modalShow(
+    const openModalCreateRoom = () => {
+        props.modalShow(
             'Are you sure?',
             'Yes',
             'No',
             () => {
-                this.createRoom.call(this);
-                this.props.modalHide();
+                createRoom.call(this);
+                props.modalHide();
             },
-            this.props.modalHide
+            props.modalHide
         );
     }
 
-    createRoom() {
+    const createRoom = () => {
         RoomService.createRoom()
             .then(result => {
                 if (result.success) {
-                    this.props.history.push(`/playarea/${result.result.id}`);
-                    this.props.alertSuccess('A game room was created successfully');
+                    props.history.push(`/playarea/${result.result.id}`);
+                    props.alertSuccess('A game room was created successfully');
                 } else {
-                    this.props.alertFailure('An error has occurred. Try again later.');
+                    props.alertFailure('An error has occurred. Try again later.');
                 }
             })
-            .catch(err => this.props.alertFailure('An error has occurred. Try again later.'));
+            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
     }
 
-    searchRoom() {
-        this.props.searchAction(this.state.search);
+    const searchRoom = () => {
+        props.searchAction(search);
     }
 
-    render() {
-        return (
-            <>
-                <Container>
-                    <Row>
-                        <Col className="mb-10" xs="12" lg="8">
-                            <Form.Control placeholder="Search for rooms..." type="text" value={this.state.search} onChange={event => this.setState(state => ({ ...state, search: event.target.value }))}></Form.Control>
-                        </Col>
-                        <Col className="mb-10" lg="2" xs="12">
-                            <Button variant="primary" block onClick={this.searchRoom.bind(this)}>Search</Button>
-                        </Col>
-                        <Col className="mb-10" lg="2" xs="12">
-                            <Button variant="secondary" block onClick={this.openModalCreateRoom.bind(this)}>Create room</Button>
-                        </Col>
-                    </Row>
-                </Container>
-                <AlertModal />
-            </>
-        );
+    const typeSearch = (value: string) => {
+        setSearch(value);
+        const tm = setTimeout(() => {
+            if (value === '') {
+                props.searchAction(value);
+            }
+        }, 1000);
     }
-}
+
+    return (
+        <>
+            <Container>
+                <Row>
+                    <Col className="mb-10" xs="12" lg="8">
+                        <Form.Control placeholder="Search for rooms..." type="text" value={search} onChange={event => typeSearch(event.target.value)}></Form.Control>
+                    </Col>
+                    <Col className="mb-10" lg="2" xs="12">
+                        <Button variant="primary" block onClick={searchRoom.bind(this)}>Search</Button>
+                    </Col>
+                    <Col className="mb-10" lg="2" xs="12">
+                        <Button variant="secondary" block onClick={openModalCreateRoom.bind(this)}>Create room</Button>
+                    </Col>
+                </Row>
+            </Container>
+            <AlertModal />
+        </>
+    );
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
     bindActionCreators({ ...AlertModalActions, ...MessagesActions, ...SearchActions }, dispatch);
