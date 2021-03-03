@@ -1,5 +1,11 @@
 .field-board {
-    border: 1px solid #212121;
+    border: 1px solid #AD6C1C;
     height: 100px;
     width: 100px;
+}
+
+.piece {
+    font-size: 45pt;
+    margin-left: 20px;
+    cursor: pointer;
 }

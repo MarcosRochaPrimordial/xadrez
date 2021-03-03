@@ -16,11 +16,11 @@ function fieldColor(rowIndex: number, colorIndex: number) {
         if (colorIndex % 2 !== 0) {
             return '#FFF';
         } else {
-            return '#212121';
+            return '#AD6C1C';
         }
     } else {
         if (colorIndex % 2 !== 0) {
-            return '#212121';
+            return '#AD6C1C';
         } else {
             return '#FFF';
         }

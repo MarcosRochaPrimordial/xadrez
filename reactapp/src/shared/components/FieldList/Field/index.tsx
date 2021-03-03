@@ -7,7 +7,9 @@ interface OwnProps {
 const Field = (props: OwnProps) => {
     const { color } = props;
     return (
-        <div className="field-board" style={{ backgroundColor: color }}></div>
+        <div className="field-board" style={{ backgroundColor: color }}>
+            <span className="piece">&#9814;</span>
+        </div>
     );
 }
 
