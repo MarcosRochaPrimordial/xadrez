@@ -63,7 +63,7 @@ const SearchRoomForm = (props: Props) => {
 
     const typeSearch = (value: string) => {
         setSearch(value);
-        const tm = setTimeout(() => {
+        setTimeout(() => {
             if (value === '') {
                 props.searchAction(value);
             }

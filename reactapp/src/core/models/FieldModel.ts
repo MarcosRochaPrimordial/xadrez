@@ -10,4 +10,5 @@ export interface Col {
 
 export interface FieldModel {
     color: string;
+    position: string;
 };

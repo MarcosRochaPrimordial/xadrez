@@ -11,15 +11,15 @@ import UserStorage from "../../shared/services/user.storage";
 import * as MessageActions from './../../core/store/ducks/Messages/actions';
 import './playarea.css';
 
-function fieldColor(rowIndex: number, colorIndex: number) {
+function fieldColor(rowIndex: number, colIndex: number) {
     if (rowIndex % 2 !== 0) {
-        if (colorIndex % 2 !== 0) {
+        if (colIndex % 2 !== 0) {
             return '#FFF';
         } else {
             return '#AD6C1C';
         }
     } else {
-        if (colorIndex % 2 !== 0) {
+        if (colIndex % 2 !== 0) {
             return '#AD6C1C';
         } else {
             return '#FFF';
@@ -27,19 +27,28 @@ function fieldColor(rowIndex: number, colorIndex: number) {
     }
 }
 
-function buildBoard() {
-    const colList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+function buildBoard(playerOne: boolean) {
+    let colList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    if (!playerOne) {
+        colList = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
+    }
     let buildedBoard: Row[] = new Array(8).fill({});
     buildedBoard = buildedBoard.map((row, key) => {
+        let index = key;
+        if (playerOne) {
+            index = (buildedBoard.length - 1) - key;
+        }
         let columns: Col[] = new Array(8).fill({});
+        const rowLocation = index + 1;
         columns = columns.map((col, ikey) => ({
             colLocation: colList[ikey],
             field: {
-                color: fieldColor(key, ikey),
+                color: fieldColor(index, ikey),
+                position: `${colList[ikey]}${rowLocation}`
             } as FieldModel
         } as Col));
         return {
-            rowLocation: ++key,
+            rowLocation,
             cols: columns
         } as Row;
     });
@@ -63,7 +72,7 @@ type Props = DispatchProps & OwnProps;
 
 const Playarea = (props: Props) => {
     const { history, alertFailure } = props;
-    const [chessBoard, setChessBoard]: [Row[], Function] = useState(buildBoard());
+    const [chessBoard, setChessBoard]: [Row[], Function] = useState([]);
     const [room, setRoom]: [Room, Function] = useState({
         id: 0,
         gameCode: '',
@@ -76,15 +85,31 @@ const Playarea = (props: Props) => {
         dStart: new Date(),
     });
 
+    const removePlayerFromRoom = () => {
+        alertFailure('Not available');
+        history.push('/');
+    }
+
+    const generateBoard = (room: Room, loggedUserId?: number) => {
+        if (loggedUserId === room.playerOne.id) {
+            setChessBoard(buildBoard(true));
+        } else if (loggedUserId === room.playerTwo.id) {
+            setChessBoard(buildBoard(false));
+        } else {
+            removePlayerFromRoom();
+        }
+    }
+
     useEffect(() => {
         const { match } = props;
-        RoomService.getRoomAndApply(match.params.id, UserStorage.getUser().id)
+        const loggedUserId = UserStorage.getUser().id;
+        RoomService.getRoomAndApply(match.params.id, loggedUserId)
             .then(result => {
                 if (result.success && result.result !== null) {
                     setRoom(result.result);
+                    generateBoard(result.result, loggedUserId);
                 } else {
-                    alertFailure('Not available');
-                    history.push('/');
+                    removePlayerFromRoom();
                 }
             })
     }, []);

@@ -1,13 +1,14 @@
+import { FieldModel } from '../../../../core/models/FieldModel';
 import './field.css';
 
 interface OwnProps {
-    color: string;
+    field: FieldModel
 }
 
 const Field = (props: OwnProps) => {
-    const { color } = props;
+    const { field } = props;
     return (
-        <div className="field-board" style={{ backgroundColor: color }}>
+        <div className={`field-board ${field.position}`} style={{ backgroundColor: field.color }}>
             <span className="piece">&#9814;</span>
         </div>
     );

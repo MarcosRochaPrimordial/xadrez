@@ -1,5 +1,6 @@
 import { Col } from "../../../core/models/FieldModel";
 import Field from './Field';
+import './fieldlist.css';
 
 interface OwnProps {
     fields: Col[];
@@ -8,9 +9,9 @@ interface OwnProps {
 const FieldList = (props: OwnProps) => {
     const { fields } = props;
     return (
-        <div>
+        <div className="line-row">
             {fields.map(i => (
-                <Field key={i.colLocation} color={i.field.color} />
+                <Field key={i.colLocation} field={i.field} />
             ))}
         </div>
     );
