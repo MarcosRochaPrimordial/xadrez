@@ -4,12 +4,14 @@ import * as crypto from 'crypto-js';
 import { RoomRepository } from "./../../infra/repository/RoomRepository";
 import { Room } from "../entity/Room";
 import { RoomDto } from "../dto/RoomDto";
+import { GameMoveService } from "./GameMoveService";
 
 
 @Injectable()
 export class RoomService {
     constructor(
         private roomRepository: RoomRepository,
+        private gameMoveService: GameMoveService,
     ) { }
 
     public async createRoom(userId: number): Promise<Notification<Room>> {
@@ -33,6 +35,7 @@ export class RoomService {
                 .then((insertedId: number) => {
                     if (!!insertedId) {
                         room.id = insertedId;
+                        this.gameMoveService.setInitialPosition(userId, room.id);
                         return notification.setResult(room);
                     } else {
                         return notification.addError('An error has occurred').Success(false)
@@ -60,6 +63,7 @@ export class RoomService {
                     if (room.player_one.id !== userId) {
                         return this.roomRepository.setPlayer2ToUser(roomId, userId)
                             .then((rows: number) => {
+                                roomDto.playerTwo.id = userId;
                                 return notification.setResult(roomDto);
                             })
                             .catch(err => notification.addError('An error has occurred').Success(false));

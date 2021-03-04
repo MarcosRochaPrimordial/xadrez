@@ -43,17 +43,17 @@ CREATE TABLE game_move (
 );
 
 INSERT INTO piece(id, colored, piece_name, piece_code) VALUES
-(null, false, 'King', '&#9812;'),
-(null, false, 'Queen', '&#9813;'),
-(null, false, 'Bishop', '&#9815;'),
-(null, false, 'Knight', '&#9816;'),
-(null, false, 'Rook', '&#9814;'),
-(null, false, 'Pawn', '&#9817;');
+(null, false, 'KING', '\u2654'),
+(null, false, 'QUEEN', '\u2655'),
+(null, false, 'BISHOP', '\u2657'),
+(null, false, 'KNIGHT', '\u2658'),
+(null, false, 'ROOK', '\u2656'),
+(null, false, 'PAWN', '\u2659');
 
-INSERT INTO piece(id, colored, piece_name) VALUES 
-(null, true, 'King', '&#9818;'),
-(null, true, 'Queen', '&#9819;'),
-(null, true, 'Bishop', '&#9821;'),
-(null, true, 'Knight', '&#9822;'),
-(null, true, 'Rook', '&#9820;'),
-(null, true, 'Pawn', '&#9823;');
+INSERT INTO piece(id, colored, piece_name, piece_code) VALUES 
+(null, true, 'KING', '\u265A'),
+(null, true, 'QUEEN', '\u265B'),
+(null, true, 'BISHOP', '\u265C'),
+(null, true, 'KNIGHT', '\u265D'),
+(null, true, 'ROOK', '\u265E'),
+(null, true, 'PAWN', '\u265F');

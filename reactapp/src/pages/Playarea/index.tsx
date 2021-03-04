@@ -43,7 +43,7 @@ function buildBoard(playerOne: boolean) {
         columns = columns.map((col, ikey) => ({
             colLocation: colList[ikey],
             field: {
-                color: fieldColor(index, ikey),
+                color: fieldColor(key, ikey),
                 position: `${colList[ikey]}${rowLocation}`
             } as FieldModel
         } as Col));

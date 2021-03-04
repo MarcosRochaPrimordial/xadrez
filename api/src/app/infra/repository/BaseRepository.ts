@@ -19,6 +19,10 @@ export class BaseRepository {
         });
     }
 
+    protected getTableName(): string {
+        return this.TABLE_NAME;
+    }
+
     protected Query<T>(query: string, args: any[]): Promise<T> {
         const con = mysql.createConnection(environment.database_config);
         return new Promise((resolve, reject) => {
