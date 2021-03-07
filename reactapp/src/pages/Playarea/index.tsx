@@ -3,9 +3,11 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 
 import { Col, FieldModel, Row } from "../../core/models/FieldModel";
+import { GameMove } from "../../core/models/GameMove";
 import { Room } from "../../core/models/Room";
 import FieldList from '../../shared/components/FieldList';
 import Header from "../../shared/components/Header";
+import PieceService from "../../shared/services/piece.service";
 import RoomService from "../../shared/services/room.service";
 import UserStorage from "../../shared/services/user.storage";
 import * as MessageActions from './../../core/store/ducks/Messages/actions';
@@ -27,7 +29,12 @@ function fieldColor(rowIndex: number, colIndex: number) {
     }
 }
 
-function buildBoard(playerOne: boolean) {
+function findPieceCode(pieces: GameMove[], colPosition: string) {
+    const piece = pieces.find(p => p.spot === colPosition);
+    return !!piece? piece.piece.pieceCode : null;
+}
+
+function buildBoard(playerOne: boolean, pieces: GameMove[]) {
     let colList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     if (!playerOne) {
         colList = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
@@ -40,13 +47,17 @@ function buildBoard(playerOne: boolean) {
         }
         let columns: Col[] = new Array(8).fill({});
         const rowLocation = index + 1;
-        columns = columns.map((col, ikey) => ({
-            colLocation: colList[ikey],
-            field: {
-                color: fieldColor(key, ikey),
-                position: `${colList[ikey]}${rowLocation}`
-            } as FieldModel
-        } as Col));
+        columns = columns.map((col, ikey) => {
+            const colPosition = `${colList[ikey]}${rowLocation}`;
+            return {
+                colLocation: colList[ikey],
+                field: {
+                    color: fieldColor(key, ikey),
+                    position: colPosition,
+                    code: findPieceCode(pieces, colPosition),
+                } as FieldModel
+            } as Col
+        });
         return {
             rowLocation,
             cols: columns
@@ -90,11 +101,11 @@ const Playarea = (props: Props) => {
         history.push('/');
     }
 
-    const generateBoard = (room: Room, loggedUserId?: number) => {
+    const generateBoard = (room: Room, pieces: GameMove[], loggedUserId?: number) => {
         if (loggedUserId === room.playerOne.id) {
-            setChessBoard(buildBoard(true));
+            setChessBoard(buildBoard(true, pieces));
         } else if (loggedUserId === room.playerTwo.id) {
-            setChessBoard(buildBoard(false));
+            setChessBoard(buildBoard(false, pieces));
         } else {
             removePlayerFromRoom();
         }
@@ -104,14 +115,17 @@ const Playarea = (props: Props) => {
         const { match } = props;
         const loggedUserId = UserStorage.getUser().id;
         RoomService.getRoomAndApply(match.params.id, loggedUserId)
-            .then(result => {
-                if (result.success && result.result !== null) {
-                    setRoom(result.result);
-                    generateBoard(result.result, loggedUserId);
+            .then((resultRoom) => {
+                if (resultRoom.success && resultRoom.result !== null) {
+                    PieceService.getPieces(match.params.id)
+                        .then((resultPieces) => {
+                            setRoom(resultRoom.result);
+                            generateBoard(resultRoom.result, resultPieces.result, loggedUserId);
+                        });
                 } else {
                     removePlayerFromRoom();
                 }
-            })
+            });
     }, []);
 
     return (

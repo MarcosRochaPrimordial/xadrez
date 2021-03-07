@@ -35,7 +35,6 @@ export class RoomService {
                 .then((insertedId: number) => {
                     if (!!insertedId) {
                         room.id = insertedId;
-                        this.gameMoveService.setInitialPosition(userId, room.id);
                         return notification.setResult(room);
                     } else {
                         return notification.addError('An error has occurred').Success(false)
@@ -60,10 +59,11 @@ export class RoomService {
             .then((room: Room) => {
                 if (!!room) {
                     let roomDto = RoomDto.fromEntity(room);
-                    if (room.player_one.id !== userId) {
+                    if (room.player_one.id !== userId && room.player_two.id !== userId) {
                         return this.roomRepository.setPlayer2ToUser(roomId, userId)
                             .then((rows: number) => {
                                 roomDto.playerTwo.id = userId;
+                                this.gameMoveService.setInitialPosition(roomDto);
                                 return notification.setResult(roomDto);
                             })
                             .catch(err => notification.addError('An error has occurred').Success(false));
