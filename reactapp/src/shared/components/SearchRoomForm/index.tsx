@@ -53,8 +53,7 @@ const SearchRoomForm = (props: Props) => {
                 } else {
                     props.alertFailure('An error has occurred. Try again later.');
                 }
-            })
-            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
+            });
     }
 
     const searchRoom = () => {

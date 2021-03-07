@@ -11,7 +11,7 @@ import { GameMoveController } from './app/application/controller/GameMoveControl
     ],
     server: {
         port: 3300,
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT'],
         headers: ['ORIGIN', 'X-Requested-With', 'Content-type', 'Accept', 'Authorization']
     }
 })

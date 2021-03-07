@@ -16,8 +16,7 @@ class Auth {
                         UserStorage.setUser(response.result);
                     }
                     resolve(response);
-                })
-                .catch(err => reject(err));
+                });
         });
     }
 

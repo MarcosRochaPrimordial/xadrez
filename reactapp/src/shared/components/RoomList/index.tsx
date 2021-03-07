@@ -79,8 +79,7 @@ const RoomList = (props: Props) => {
                 } else {
                     props.alertWarning('There is no game room right now.');
                 }
-            })
-            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
+            });
     }
 
     const enterRoom = (gameCode: string, roomId: number) => {
@@ -91,8 +90,7 @@ const RoomList = (props: Props) => {
                 } else {
                     props.alertWarning('Wrong room code');
                 }
-            })
-            .catch(err => props.alertFailure('An error has occurred. Try again later.'));
+            });
     }
 
     const openModalGameCode = (roomId: number) => {

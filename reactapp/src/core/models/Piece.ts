@@ -1,5 +1,5 @@
 export interface Piece {
-    id?: number;
+    id: number;
     colored: boolean;
     pieceName: string;
     pieceCode: string;

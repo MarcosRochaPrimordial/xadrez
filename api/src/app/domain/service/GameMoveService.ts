@@ -7,6 +7,7 @@ import { Piece } from "../entity/Piece";
 import { RoomDto } from "../dto/RoomDto";
 import { Notification } from "./../../application/notification/Notification";
 import { GameMoveDto } from "../dto/GameMoveDto";
+import { GameMoveRequest } from "../dto/GameMoveRequest";
 
 @Injectable()
 export class GameMoveService {
@@ -16,7 +17,7 @@ export class GameMoveService {
         private pieceRepository: PieceRepository
     ) { }
 
-    setInitialPosition(room: RoomDto) {
+    public setInitialPosition(room: RoomDto) {
         INITIAL_POSITION.forEach(val => {
             let user: number = null;
             if (!val.piece.colored) {
@@ -43,12 +44,25 @@ export class GameMoveService {
         });
     }
 
-    getPieces(roomId: number): Promise<Notification<GameMoveDto[]>> {
+    public getPieces(roomId: number): Promise<Notification<GameMoveDto[]>> {
         let notification = new Notification<GameMoveDto[]>();
         return this.gameMoveRepository.getPieces(roomId)
             .then((pieces: GameMove[]) => {
                 let piecesDto = pieces.map(GameMoveDto.fromEntity);
                 return notification.setResult(piecesDto);
+            })
+            .catch(err => notification.addError('An error has occurred').Success(false));
+    }
+
+    public setPiece(moveRequest: GameMoveRequest): Promise<Notification> {
+        let notification = new Notification();
+        return this.gameMoveRepository.setPiecePosition(moveRequest)
+            .then((changedRows) => {
+                if (changedRows === 1) {
+                    return notification.Success();
+                } else {
+                    return notification.addError('Something went wrong');
+                }
             })
             .catch(err => notification.addError('An error has occurred').Success(false));
     }

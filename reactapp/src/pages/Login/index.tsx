@@ -43,9 +43,6 @@ const Login = (props: Props) => {
                     } else {
                         props.alertFailure(data.errors.join('\n'));
                     }
-                })
-                .catch(err => {
-                    props.alertFailure('An error has occurred. Try again later.');
                 });
         } else {
             UserService.signUp(body)
@@ -56,9 +53,6 @@ const Login = (props: Props) => {
                     } else {
                         props.alertFailure(data.errors.join('\n'));
                     }
-                })
-                .catch(err => {
-                    props.alertFailure('An error has occurred. Try again later.');
                 });
         }
     }

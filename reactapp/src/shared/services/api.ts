@@ -3,6 +3,7 @@ import store from './../../core/store';
 import { LoadingTypes } from './../../core/store/ducks/Loading/types'
 import { ResultNotification } from '../../core/models/ResultNotification';
 import UserStorage from './user.storage';
+import { MessagesTypes } from '../../core/store/ducks/Messages/types';
 
 class Api {
     private api = axios.create({
@@ -27,12 +28,16 @@ class Api {
         store.dispatch({ type: LoadingTypes.HIDE })
     }
 
+    private sendMessage() {
+        store.dispatch({ type: MessagesTypes.FAILURE, payload: 'Something went wrong' });
+    }
+
     public Post<T>(endpoint: string, body: any = null): Promise<ResultNotification<T>> {
         this.loadingShow();
         return new Promise((resolve, reject) => {
             this.api.post<any, any>(endpoint, body, this.insertHeaders())
                 .then(response => resolve(response.data as ResultNotification<T>))
-                .catch(err => reject(err))
+                .catch(err => this.sendMessage())
                 .finally(() => this.loadingHide());
         });
     }
@@ -42,9 +47,19 @@ class Api {
         return new Promise((resolve, reject) => {
             this.api.get<any, any>(endpoint, this.insertHeaders())
                 .then(response => resolve(response.data as ResultNotification<T>))
-                .catch(err => reject(err))
+                .catch(err => this.sendMessage())
                 .finally(() => this.loadingHide());
-        })
+        });
+    }
+
+    public Put<T>(endpoint: string, body: any = null): Promise<ResultNotification<T>> {
+        this.loadingShow();
+        return new Promise((resolve, reject) => {
+            this.api.put<any, any>(endpoint, body, this.insertHeaders())
+                .then(response => resolve(response.data as ResultNotification<T>))
+                .catch(err => this.sendMessage())
+                .finally(() => this.loadingHide());
+        });
     }
 }
 

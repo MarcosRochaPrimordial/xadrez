@@ -1,3 +1,5 @@
+import { GameMove } from "./GameMove";
+
 export interface Row {
     rowLocation: number;
     cols: Col[];
@@ -11,5 +13,7 @@ export interface Col {
 export interface FieldModel {
     color: string;
     position: string;
-    code: string;
+    colPosition: string;
+    rowPosition: number;
+    move: GameMove;
 };

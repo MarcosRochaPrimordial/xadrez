@@ -4,6 +4,7 @@ import { bindActionCreators, Dispatch } from "redux";
 
 import { Col, FieldModel, Row } from "../../core/models/FieldModel";
 import { GameMove } from "../../core/models/GameMove";
+import { IPieceMovments } from "../../core/models/PieceMovments";
 import { Room } from "../../core/models/Room";
 import FieldList from '../../shared/components/FieldList';
 import Header from "../../shared/components/Header";
@@ -11,6 +12,7 @@ import PieceService from "../../shared/services/piece.service";
 import RoomService from "../../shared/services/room.service";
 import UserStorage from "../../shared/services/user.storage";
 import * as MessageActions from './../../core/store/ducks/Messages/actions';
+import * as PieceActions from './../../core/store/ducks/Pieces/actions';
 import './playarea.css';
 
 function fieldColor(rowIndex: number, colIndex: number) {
@@ -29,15 +31,14 @@ function fieldColor(rowIndex: number, colIndex: number) {
     }
 }
 
-function findPieceCode(pieces: GameMove[], colPosition: string) {
-    const piece = pieces.find(p => p.spot === colPosition);
-    return !!piece? piece.piece.pieceCode : null;
+function findPiece(moves: GameMove[], colPosition: string) {
+    return moves.find(p => p.spot === colPosition);
 }
 
 function buildBoard(playerOne: boolean, pieces: GameMove[]) {
     let colList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
     if (!playerOne) {
-        colList = ['H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
+        colList.reverse();
     }
     let buildedBoard: Row[] = new Array(8).fill({});
     buildedBoard = buildedBoard.map((row, key) => {
@@ -49,12 +50,18 @@ function buildBoard(playerOne: boolean, pieces: GameMove[]) {
         const rowLocation = index + 1;
         columns = columns.map((col, ikey) => {
             const colPosition = `${colList[ikey]}${rowLocation}`;
+            const move = findPiece(pieces, colPosition);
             return {
                 colLocation: colList[ikey],
                 field: {
                     color: fieldColor(key, ikey),
                     position: colPosition,
-                    code: findPieceCode(pieces, colPosition),
+                    colPosition: colList[ikey],
+                    rowPosition: rowLocation,
+                    move: {
+                        ...move,
+                        allow: playerOne ? !move?.piece.colored : move?.piece.colored,
+                    }
                 } as FieldModel
             } as Col
         });
@@ -68,6 +75,7 @@ function buildBoard(playerOne: boolean, pieces: GameMove[]) {
 
 interface DispatchProps {
     alertFailure(message: string): void;
+    provideHighlights(gameMove: number, piece: number, availableHighlighteds: Array<string>): void;
 }
 
 interface OwnProps {
@@ -82,7 +90,9 @@ interface OwnProps {
 type Props = DispatchProps & OwnProps;
 
 const Playarea = (props: Props) => {
-    const { history, alertFailure } = props;
+    const { history, alertFailure, provideHighlights, match } = props;
+    const loggedUserId = UserStorage.getUser().id;
+    const [playerOne, setPlayerOne]: [boolean, Function] = useState(true);
     const [chessBoard, setChessBoard]: [Row[], Function] = useState([]);
     const [room, setRoom]: [Room, Function] = useState({
         id: 0,
@@ -95,6 +105,28 @@ const Playarea = (props: Props) => {
         },
         dStart: new Date(),
     });
+    const pieceMovments: IPieceMovments =  {
+        PAWN: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => {
+            let newPos: Array<number> = [];
+            if (playerOne) {
+                newPos.push(rowPosition + 1);
+                if (rowPosition == 2) {
+                    newPos.push(rowPosition + 2);
+                }
+            } else {
+                newPos.push(rowPosition - 1);
+                if (rowPosition == 7) {
+                    newPos.push(rowPosition - 2);
+                }
+            }
+            provideHighlights(gameMoveId, pieceId, newPos.map(p => colPosition + p.toString()));
+        },
+        ROOK: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => console.log('I am a ROOK at ' + colPosition + rowPosition),
+        BISHOP: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => console.log('I am a BISHOP at ' + colPosition + rowPosition),
+        KNIGHT: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => console.log('I am a KNIGHT at ' + colPosition + rowPosition),
+        QUEEN: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => console.log('I am a QUEEN at ' + colPosition + rowPosition),
+        KING: (gameMoveId: number, pieceId: number, colPosition: string, rowPosition: number) => console.log('I am a KING at ' + colPosition + rowPosition),
+    }
 
     const removePlayerFromRoom = () => {
         alertFailure('Not available');
@@ -102,26 +134,31 @@ const Playarea = (props: Props) => {
     }
 
     const generateBoard = (room: Room, pieces: GameMove[], loggedUserId?: number) => {
+        let p1 = true;
         if (loggedUserId === room.playerOne.id) {
-            setChessBoard(buildBoard(true, pieces));
+            p1 = true;
         } else if (loggedUserId === room.playerTwo.id) {
-            setChessBoard(buildBoard(false, pieces));
+            p1 = false;
         } else {
             removePlayerFromRoom();
         }
+        setPlayerOne(p1);
+        setChessBoard(buildBoard(p1, pieces));
+    }
+
+    const getPieces = (room: Room) => {
+        PieceService.getPieces(match.params.id)
+        .then((resultPieces) => {
+            generateBoard(room, resultPieces.result, loggedUserId);
+        });
     }
 
     useEffect(() => {
-        const { match } = props;
-        const loggedUserId = UserStorage.getUser().id;
         RoomService.getRoomAndApply(match.params.id, loggedUserId)
             .then((resultRoom) => {
                 if (resultRoom.success && resultRoom.result !== null) {
-                    PieceService.getPieces(match.params.id)
-                        .then((resultPieces) => {
-                            setRoom(resultRoom.result);
-                            generateBoard(resultRoom.result, resultPieces.result, loggedUserId);
-                        });
+                    setRoom(resultRoom.result);
+                    getPieces(resultRoom.result);
                 } else {
                     removePlayerFromRoom();
                 }
@@ -135,7 +172,7 @@ const Playarea = (props: Props) => {
                     <Header history={history} gameCode={room.gameCode} />
                     <div className="chess-board">
                         {chessBoard.map(i => (
-                            <FieldList key={i.rowLocation} fields={i.cols} />
+                            <FieldList key={i.rowLocation} fields={i.cols} pieceMovments={pieceMovments} room={room} reload={getPieces.bind(this)} />
                         ))}
                     </div>
                 </>
@@ -145,6 +182,6 @@ const Playarea = (props: Props) => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) =>
-    bindActionCreators({ ...MessageActions }, dispatch);
+    bindActionCreators({ ...MessageActions, ...PieceActions }, dispatch);
 
 export default connect(null, mapDispatchToProps)(Playarea);
