@@ -17,31 +17,37 @@ export class GameMoveService {
         private pieceRepository: PieceRepository
     ) { }
 
-    public setInitialPosition(room: RoomDto) {
-        INITIAL_POSITION.forEach(val => {
+    public async setInitialPosition(room: RoomDto): Promise<boolean> {
+        const gameMoves: any[] = [];
+        for (let i = 0; i < INITIAL_POSITION.length; i = i + 1) {
+            const val = INITIAL_POSITION[i];
             let user: number = null;
             if (!val.piece.colored) {
                 user = room.playerOne.id;
             } else {
                 user = room.playerTwo.id;
             }
-            const gameMove: GameMove = {
-                id: null,
-                piece: {
-                    piece_name: val.piece.name,
-                    colored: val.piece.colored,
-                },
-                spot: val.spot,
-                d_time: new Date(),
-                room_id: room.id,
-                user_id: user,
-            };
-            this.pieceRepository.getPiece(gameMove.piece)
-                .then((piece: Piece) => {
-                    gameMove.piece.id = piece.id;
-                    this.gameMoveRepository.setPieces(gameMove);
+            const piece = await this.pieceRepository.getPiece({ piece_name: val.piece.name, colored: val.piece.colored });
+            gameMoves.push([null, piece.id, val.spot, new Date(), room.id, user]);
+        }
+        return new Promise((resolve, reject) => {
+            this.gameMoveRepository.beginTransaction()
+                .then(() => {
+                    this.gameMoveRepository.bulkPieces(gameMoves)
+                        .then(() => {
+                            this.gameMoveRepository.commit();
+                            resolve(true);
+                        })
+                        .catch(err => {
+                            this.gameMoveRepository.rollback();
+                            reject(err);
+                        });
+                })
+                .catch(err => {
+                    this.gameMoveRepository.rollback();
+                    reject(err);
                 });
-        });
+        })
     }
 
     public getPieces(roomId: number): Promise<Notification<GameMoveDto[]>> {

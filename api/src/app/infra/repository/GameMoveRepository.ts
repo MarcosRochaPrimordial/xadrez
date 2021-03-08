@@ -7,12 +7,14 @@ export class GameMoveRepository extends BaseRepository {
         super('game_move');
     }
 
-    public setPieces(entitie: GameMove): void {
-        new Promise((resolve, reject) => {
-            let query = `INSERT INTO ${this.getTableName()} (id, piece_id, spot, d_time, room_id, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
-            this.Query(query, [entitie.id, entitie.piece.id, entitie.spot, entitie.d_time, entitie.room_id, entitie.user_id])
-                .then((result: any) => resolve(result))
-                .catch(err => reject(err));
+    public bulkPieces(entities: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            let query = `INSERT INTO ${this.getTableName()} (id, piece_id, spot, d_time, room_id, user_id) VALUES (?)`;
+            const promises = [];
+            entities.forEach(e => {
+                this.Query(query, [e]);
+            });
+            resolve(true);
         });
     }
 

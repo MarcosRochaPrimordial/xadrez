@@ -32,15 +32,15 @@ export class RoomService {
         } as Room;
 
         return this.roomRepository.Insert<Room>(room)
-                .then((insertedId: number) => {
-                    if (!!insertedId) {
-                        room.id = insertedId;
-                        return notification.setResult(room);
-                    } else {
-                        return notification.addError('An error has occurred').Success(false)
-                    }
-                })
-                .catch(err => notification.addError(err).Success(false));
+            .then((insertedId: number) => {
+                if (!!insertedId) {
+                    room.id = insertedId;
+                    return notification.setResult(room);
+                } else {
+                    return notification.addError('An error has occurred').Success(false)
+                }
+            })
+            .catch(err => notification.addError(err).Success(false));
     }
 
     public getRooms(pageStart: number, pageEnd: number, search: string = null): Promise<Notification<RoomDto[]>> {
@@ -55,26 +55,43 @@ export class RoomService {
 
     public getRoomByIdValidateUser(roomId: number, userId: number = null): Promise<Notification<RoomDto>> {
         let notification = new Notification<RoomDto>();
-        return this.roomRepository.getRoomByIdValidateUser(roomId, userId)
-            .then((room: Room) => {
-                if (!!room) {
-                    let roomDto = RoomDto.fromEntity(room);
-                    if (room.player_one.id !== userId && room.player_two.id !== userId) {
-                        return this.roomRepository.setPlayer2ToUser(roomId, userId)
-                            .then((rows: number) => {
-                                roomDto.playerTwo.id = userId;
-                                this.gameMoveService.setInitialPosition(roomDto);
+        return this.roomRepository.beginTransaction()
+            .then(() => {
+                return this.roomRepository.getRoomByIdValidateUser(roomId, userId)
+                    .then((room: Room) => {
+                        if (!!room) {
+                            let roomDto = RoomDto.fromEntity(room);
+                            if (room.player_one.id !== userId && room.player_two.id !== userId) {
+                                return this.roomRepository.setPlayer2ToUser(roomId, userId)
+                                    .then((rows: number) => {
+                                        roomDto.playerTwo.id = userId;
+                                        return this.gameMoveService.setInitialPosition(roomDto)
+                                            .then(inserted => {
+                                                this.roomRepository.commit();
+                                                return notification.setResult(roomDto);
+                                            })
+                                            .catch(err => {
+                                                this.roomRepository.rollback();
+                                                return notification.addError('Something went wrong');
+                                            });
+                                    })
+                                    .catch(err => {
+                                        this.roomRepository.rollback();
+                                        return notification.addError('An error has occurred').Success(false)
+                                    });
+                            } else {
                                 return notification.setResult(roomDto);
-                            })
-                            .catch(err => notification.addError('An error has occurred').Success(false));
-                    } else {
-                        return notification.setResult(roomDto);
-                    }
-                } else {
-                    return notification.setResult(null);
-                }
+                            }
+                        } else {
+                            return notification.setResult(null);
+                        }
+                    })
+                    .catch(err => notification.addError('An error has occurred').Success(false));
             })
-            .catch(err => notification.addError('An error has occurred').Success(false));
+            .catch(err => {
+                console.log(err);
+                return notification.addError('Something went wrong')
+            });
     }
 
     public async verifyRoomCode(roomId: number, gameCode: string): Promise<Notification> {
