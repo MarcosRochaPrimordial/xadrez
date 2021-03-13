@@ -11,6 +11,7 @@ export class GameMoveDto {
     pieceId?: number;
     piece: PieceDto;
     spot: string;
+    killed: boolean;
     dTime: Date;
     room?: RoomDto;
     user?: UserDto;

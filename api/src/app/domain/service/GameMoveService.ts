@@ -28,7 +28,7 @@ export class GameMoveService {
                 user = room.playerTwo.id;
             }
             const piece = await this.pieceRepository.getPiece({ piece_name: val.piece.name, colored: val.piece.colored });
-            gameMoves.push([null, piece.id, val.spot, new Date(), room.id, user]);
+            gameMoves.push([null, piece.id, val.spot, false, new Date(), room.id, user]);
         }
         return new Promise((resolve, reject) => {
             this.gameMoveRepository.beginTransaction()
@@ -62,14 +62,25 @@ export class GameMoveService {
 
     public setPiece(moveRequest: GameMoveRequest): Promise<Notification> {
         let notification = new Notification();
-        return this.gameMoveRepository.setPiecePosition(moveRequest)
-            .then((changedRows) => {
-                if (changedRows === 1) {
-                    return notification.Success();
-                } else {
-                    return notification.addError('Something went wrong');
-                }
-            })
-            .catch(err => notification.addError('An error has occurred').Success(false));
+        return new Promise(resolve => {
+            this.gameMoveRepository.beginTransaction()
+                .then(() => {
+                    this.gameMoveRepository.killPiece(moveRequest)
+                        .then(() => {
+                            this.gameMoveRepository.setPiecePosition(moveRequest)
+                                .then((changedRows) => {
+                                    if (changedRows === 1) {
+                                        resolve(notification.Success());
+                                    } else {
+                                        resolve(notification.addError('Something went wrong'));
+                                    }
+                                });
+                        });
+                })
+                .catch(err => {
+                    this.gameMoveRepository.rollback();
+                    resolve(notification.addError('An error has occurred').Success(false));
+                });
+        })
     }
 }

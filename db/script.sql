@@ -34,6 +34,7 @@ CREATE TABLE game_move (
     id INT PRIMARY KEY AUTO_INCREMENT,
     piece_id INT,
     spot VARCHAR(2),
+    killed BOOLEAN,
     d_time DATETIME,
     room_id INT,
     user_id INT,

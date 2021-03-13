@@ -65,7 +65,7 @@ const Field = (props: Props) => {
 
     const handlePiece = () => {
         if (!!field.move.piece?.pieceCode && field.move.allow) {
-            pieceMovments[field.move.piece.pieceName](field.move.id, field.move.piece.id, field.colPosition, field.rowPosition);
+            pieceMovments[field.move.piece.pieceName](field.move.id, field.move.piece.id, field.colPosition, field.rowPosition, field.move.piece.colored);
         } else if (!!pieceId && !!gameMoveId) {
             if (verifyHighlightedPositionAtNewPostion(field.position)) {
                 PieceService.setPiece({

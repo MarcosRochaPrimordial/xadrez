@@ -7,6 +7,7 @@ export class GameMove {
     piece_id?: number;
     piece: Piece;
     spot: string;
+    killed: boolean;
     d_time: Date;
     room_id: number;
     room?: Room;

@@ -6,6 +6,7 @@ export interface GameMove {
     id: number;
     piece: Piece;
     spot: string;
+    killed: boolean;
     dTime: Date;
     roomId: Room;
     userId: User;

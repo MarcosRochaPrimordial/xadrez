@@ -9,8 +9,7 @@ export class GameMoveRepository extends BaseRepository {
 
     public bulkPieces(entities: any): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            let query = `INSERT INTO ${this.getTableName()} (id, piece_id, spot, d_time, room_id, user_id) VALUES (?)`;
-            const promises = [];
+            let query = `INSERT INTO ${this.getTableName()} (id, piece_id, spot, killed, d_time, room_id, user_id) VALUES (?)`;
             entities.forEach(e => {
                 this.Query(query, [e]);
             });
@@ -29,7 +28,8 @@ export class GameMoveRepository extends BaseRepository {
                                  FROM game_move gm
                                  JOIN piece p
                                    ON gm.piece_id = p.id
-                                WHERE gm.room_id = ?`, [roomId])
+                                WHERE gm.room_id = ?
+                                  AND gm.killed = 0`, [roomId])
                 .then((result: any[]) => {
                     resolve(this.mapPieces(result))
                 })
@@ -51,6 +51,19 @@ export class GameMoveRepository extends BaseRepository {
                 })
                 .catch(err => reject(err));
         })
+    }
+
+    public killPiece(moveRequest: GameMoveRequest): Promise<number> {
+        return new Promise((resolve, reject) => {
+            this.Query(`UPDATE game_move
+                           SET killed = 1
+                         WHERE spot = ?
+                           AND room_id = ?`, [moveRequest.position, moveRequest.roomId])
+                .then((result: any) => {
+                    resolve(result.changedRows);
+                })
+                .catch(err => reject(err));
+        });
     }
 
     private mapPieces(pieces: any[]): GameMove[] {
